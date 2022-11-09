@@ -1,6 +1,7 @@
 import csv
-
+import functools
 import multiprocessing
+import timeit
 
 
 f = open('result.csv', "w+")
@@ -33,44 +34,39 @@ def filter_data(start, end):
 
 # filter_data(0, 1000000)
 
-# filter_data(0, 100000)
-# filter_data(0, 100000)
-# filter_data(0, 100000)
-# filter_data(0, 100000)
-# filter_data(0, 100000)
+def multible_functions(thread_num):
+    num = 1000000//thread_num
+    for i in range(0, thread_num):
+        start = i*num+1
+        end = (i+1)*num
+        filter_data(start, end)
 
 
-# num = 1000000//40
+def multi_threading(thread_num):
+    # creating threads
+    threads = []
+    num = 1000000//thread_num
+
+    for i in range(0, thread_num):
+        start = i*num+1
+        end = (i+1)*num
+        # print("start: ", start, "End: ", end)
+        t = multiprocessing.Process(target=filter_data, args=(start, end,))
+        threads.append(t)
+
+    for i in range(0, thread_num):
+        threads[i].start()
+
+    for i in range(0, thread_num):
+        threads[i].join()
 
 
-# for i in range(0, 40):
-#     start = i*num+1
-#     end = (i+1)*num
-#     filter_data(start, end)
-
-# filter_data(0, 33000)
-# filter_data(33001, 60000)
-# filter_data(60001, 100000)
-
-
-# creating threads
-threads = []
-num = 1000000//5
-
-
-for i in range(0, 5):
-    start = i*num+1
-    end = (i+1)*num
-    print("start: ", start, "End: ", end)
-    t = multiprocessing.Process(target=filter_data, args=(start, end))
-    threads.append(t)
-
-
-for i in range(0, 5):
-    threads[i].start()
-
-for i in range(0, 5):
-    threads[i].join()
-
-
-print("Done!")
+if __name__ == "__main__":
+    '''It is very important to use name == __main__ guard code with threads and multiprocessing'''
+    import timeit
+    # print("Time to Run 1x: ", timeit.timeit(
+    #     functools.partial(filter_data, 0, 1000000), number=1))
+    print("Multiple: ", timeit.timeit(
+        functools.partial(multible_functions, 10), number=1))
+    print("Multiprocessing:  ", timeit.timeit(
+        functools.partial(multi_threading, 10), number=1))
