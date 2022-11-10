@@ -3,36 +3,33 @@ import functools
 import multiprocessing
 import timeit
 
-
-f = open('result.csv', "w+")
-f.close()
+all_records = []
 
 
-def filter_data(start, end):
+def filter_data():
     count = 0
-    # num = 1200000/thread
-    with open('rows.csv', newline='', encoding='Latin1') as csvfile, open('result.csv', 'a', encoding='Latin1') as file:
+    with open('rows.csv', newline='', encoding='Latin1') as csvfile, open('result.csv', 'w', encoding='Latin1') as file:
         reader = csv.reader(csvfile)
         # looping inside the whole csv file
         for row in reader:
-            count += 1
-            # print("count: ", count)
-            # setting a range point from start till end
-            if(count > start):
-                # removing the null values
-                if row and row[1] and row[3] and row[7] and row[8] and row[17] and row[9]:
+            if row and row[1] and row[3] and row[7] and row[8] and row[17] and row[9]:
 
-                    data = [count, row[1], row[3],
-                            row[7], row[8], row[17], row[9]]
+                data = [count, row[1], row[3],
+                        row[7], row[8], row[17], row[9]]
 
-                    # print(data)
-                    writer = csv.writer(file)
-                    writer.writerow(data)
-            if count > end:
-                break
+                # print(data)
+                writer = csv.writer(file)
+                writer.writerow(data)
+                all_records.append(data)
+                count += 1
+                if count > 10000:
+                    break
 
+
+filter_data()
 
 # filter_data(0, 1000000)
+
 
 def multible_functions(thread_num):
     num = 1000000//thread_num
@@ -61,12 +58,10 @@ def multi_threading(thread_num):
         threads[i].join()
 
 
-if __name__ == "__main__":
-    '''It is very important to use name == __main__ guard code with threads and multiprocessing'''
-    import timeit
-    # print("Time to Run 1x: ", timeit.timeit(
-    #     functools.partial(filter_data, 0, 1000000), number=1))
-    print("Multiple: ", timeit.timeit(
-        functools.partial(multible_functions, 10), number=1))
-    print("Multiprocessing:  ", timeit.timeit(
-        functools.partial(multi_threading, 10), number=1))
+# if __name__ == "__main__":
+#     '''It is very important to use name == __main__ guard code with threads and multiprocessing'''
+
+#     print("Multiple: ", timeit.timeit(
+#         functools.partial(multible_functions, 10), number=1))
+#     print("Multiprocessing:  ", timeit.timeit(
+#         functools.partial(multi_threading, 10), number=1))
