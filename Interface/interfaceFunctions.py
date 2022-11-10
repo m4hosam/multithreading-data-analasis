@@ -20,13 +20,29 @@ class MainWindow:
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.main_win)
         self.data = init_data()
+
+        self.filteringRadioVal = 0
+        self.filterBy = 0
+        self.threadNum = 0
+        self.similarityColumn = 0
+        self.similarityPercentage = 0
+        self.checkedColumns = []
+
         self.init_dataTable(self.data)
         self.ui.filtering_combo.setEnabled(False)
         self.ui.filteringSame_radio.setEnabled(False)
         self.ui.filtering_textEdit.setEnabled(False)
         self.ui.filteringKey_radio.setEnabled(False)
         self.ui.filteringColumn_checkbox.clicked.connect(self.toggleFilteringCheckbox)
+        self.ui.ara_button.clicked.connect(self.getInput)
         self.ui.All_checkbox.clicked.connect(self.toggleColumnCheckboxes)
+
+        self.ui.Product_checkbox.clicked.connect(self.toggleAll)
+        self.ui.Issue_checkbox.clicked.connect(self.toggleAll)
+        self.ui.ID_checkbox.clicked.connect(self.toggleAll)
+        self.ui.ZIP_checkbox.clicked.connect(self.toggleAll)
+        self.ui.Company_checkbox.clicked.connect(self.toggleAll)
+        self.ui.State_checkbox.clicked.connect(self.toggleAll)
 
     def init_dataTable(self, data):
         columnNum = len(data.axes[1])
@@ -73,6 +89,18 @@ class MainWindow:
             self.ui.filteringSame_radio.setEnabled(True)
             self.ui.filtering_textEdit.setEnabled(True)
             self.ui.filteringKey_radio.setEnabled(True)
+
+    def toggleAll(self):
+        if not self.ui.ID_checkbox.isChecked():
+            self.ui.All_checkbox.setChecked(False)
+        if not self.ui.Company_checkbox.isChecked():
+            self.ui.All_checkbox.setChecked(False)
+        if not self.ui.State_checkbox.isChecked():
+            self.ui.All_checkbox.setChecked(False)
+        if not self.ui.ZIP_checkbox.isChecked():
+            self.ui.All_checkbox.setChecked(False)
+        if not self.ui.Issue_checkbox.isChecked():
+            self.ui.All_checkbox.setChecked(False)
     
     def toggleColumnCheckboxes(self):
         state = self.ui.All_checkbox.isChecked()
@@ -90,6 +118,59 @@ class MainWindow:
             self.ui.ZIP_checkbox.setChecked(False)
             self.ui.Company_checkbox.setChecked(False)
             self.ui.State_checkbox.setChecked(False)
+
+    def getInput(self):
+        threadNum = self.ui.threadNum_textEdit.toPlainText()
+        similarityColumn = self.ui.similarity_combo.currentText()
+        similarityPercentage = self.ui.similarity_textEdit.toPlainText() 
+        if threadNum.isnumeric() == False:
+            return
+        elif similarityPercentage.isnumeric() == False:
+            return
+
+        threadNum = int(threadNum)
+        filteringRadioVal = 0
+        filterBy = 0
+
+        
+        if self.ui.filteringColumn_checkbox.isChecked():
+            filterBy = self.ui.filtering_combo.currentText()
+            if self.ui.filteringSame_radio.isChecked():
+                filteringRadioVal = "same"
+            else:
+                filteringRadioVal = self.ui.filtering_textEdit.toPlainText()
+        else:
+            filteringRadioVal = 0
+            filterBy = 0
+
+        checkedColumns = ['Product','Issue','Company','State','ZIP code','Complaint ID']
+        if not self.ui.All_checkbox.isChecked():
+            if not self.ui.Product_checkbox.isChecked():
+                checkedColumns.remove('Product')
+            if not self.ui.Issue_checkbox.isChecked():
+                checkedColumns.remove('Issue')
+            if not self.ui.Company_checkbox.isChecked():
+                checkedColumns.remove('Company')
+            if not self.ui.State_checkbox.isChecked():
+                checkedColumns.remove('State')
+            if not self.ui.ZIP_checkbox.isChecked():
+                checkedColumns.remove('ZIP code')
+            if not self.ui.ID_checkbox.isChecked():
+                checkedColumns.remove('Complaint ID')
+
+        self.filteringRadioVal = filteringRadioVal
+        self.filterBy = filterBy
+        self.threadNum = threadNum
+        self.similarityColumn = similarityColumn
+        self.similarityPercentage = similarityPercentage
+        self.checkedColumns = checkedColumns
+        
+        print(self.filteringRadioVal)
+        print(self.filterBy)
+        print(self.threadNum)
+        print(self.similarityColumn)
+        print(self.similarityPercentage)
+        print(self.checkedColumns)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

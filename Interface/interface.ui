@@ -179,11 +179,6 @@
      </item>
      <item>
       <property name="text">
-       <string>ID</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
        <string>ZIP code</string>
       </property>
      </item>

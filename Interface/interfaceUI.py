@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\untitled.ui'
+# Form implementation generated from reading ui file 'interface.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -58,7 +58,6 @@ class Ui_MainWindow(object):
         self.similarity_combo = QtWidgets.QComboBox(self.similarity_label)
         self.similarity_combo.setGeometry(QtCore.QRect(10, 20, 121, 22))
         self.similarity_combo.setObjectName("similarity_combo")
-        self.similarity_combo.addItem("")
         self.similarity_combo.addItem("")
         self.similarity_combo.addItem("")
         self.similarity_combo.addItem("")
@@ -137,8 +136,7 @@ class Ui_MainWindow(object):
         self.similarity_combo.setItemText(1, _translate("MainWindow", "Issue"))
         self.similarity_combo.setItemText(2, _translate("MainWindow", "Company"))
         self.similarity_combo.setItemText(3, _translate("MainWindow", "State"))
-        self.similarity_combo.setItemText(4, _translate("MainWindow", "ID"))
-        self.similarity_combo.setItemText(5, _translate("MainWindow", "ZIP code"))
+        self.similarity_combo.setItemText(4, _translate("MainWindow", "ZIP code"))
         self.similarityPercentage_label.setText(_translate("MainWindow", "%"))
         self.columns_group.setTitle(_translate("MainWindow", "GroupBox"))
         self.Product_checkbox.setText(_translate("MainWindow", "Product"))
