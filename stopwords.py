@@ -12,8 +12,9 @@ def readData():
     data['Company'] = data['Company'].str.replace(r'[^\w\s]+', '')
     data = data.dropna()
     data.to_csv('newdata.csv')
-    return data
+    # return data
 
+# still under development
 def removeStopWords():
     stop_words = set(stopwords.words('english'))
     data = pd.read_csv('newdata.csv')
@@ -36,13 +37,14 @@ def removeStopWords():
         # data.loc[index,'Issue'] = listToStr
         data.loc[index, 'Issue'] = listToStr
         # print(data.at[index, 'Issue'])
+
         filtered_sentence = []
-    data.to_csv('nostopwords.csv')
+    data.to_csv('nostopwords.csv', index = False)
 
 # removeStopWords()
-# if __name__ == '__main__':
-readData()
-#     removeStopWords(data)
+if __name__ == '__main__':
+    readData()
+    removeStopWords()
 
 
 
