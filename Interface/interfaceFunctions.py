@@ -7,7 +7,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
 def init_data():
-    data = pd.read_csv('newdata.csv')
+    data = pd.read_csv('nostopwords.csv')
     # data = data.drop(['Date received','Sub-product','Sub-issue','Consumer complaint narrative', 'Company public response', 'Tags', 'Consumer consent provided?', 'Submitted via','Date sent to company', 'Company response to consumer','Timely response?', 'Consumer disputed?'], axis=1)
     # data['Issue'] = data['Issue'].str.replace(r'[^\w\s]+', '')
     # data['Product'] = data['Product'].str.replace(r'[^\w\s]+', '')
