@@ -22,9 +22,9 @@ def removeStopWords():
     filtered_sentence = []
     c = 0
     for index, row in data.iterrows():
-        if c == 20:
-            break
-        c+=1
+        # if c == 20:
+        #     break
+        # c+=1
         sentence = row['Issue']
         word_tokens = word_tokenize(sentence)
         for w in word_tokens:
@@ -33,7 +33,7 @@ def removeStopWords():
         listToStr = ' '.join([str(elem) for elem in filtered_sentence])
         # print(word_tokens)
         # print(listToStr)
-        print(index, listToStr)
+        # print(index, listToStr)
         # data.loc[index,'Issue'] = listToStr
         data.loc[index, 'Issue'] = listToStr
         # print(data.at[index, 'Issue'])
@@ -43,7 +43,7 @@ def removeStopWords():
 
 # removeStopWords()
 if __name__ == '__main__':
-    readData()
+    # readData()
     removeStopWords()
 
 
