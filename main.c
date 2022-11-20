@@ -1,8 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-struct DataSet
+typedef struct DataSet
 {
     char id[20];
     char product[100];
@@ -11,28 +12,49 @@ struct DataSet
     char state[10];
     char complaintId[20];
     char ZIP[10];
-};
+} DataSet;
 
-struct DataSet records[1000];
+struct DataSet *records;
+// struct DataSet records[100000];
 
-struct DataSet similars[1000][1000];
+struct DataSet **similars;
 int numberOfArraysInSimilars = 0;
-int sizeOfEveryArrayInSimilars[1000];
+int sizeOfEveryArrayInSimilars[100];
+
+void test(int start);
+void showSimilars();
+int checkSimilarity(struct DataSet data);
+float similarityPersentage(char *a, char *b);
+int wordsOfSentence(char newString[30][20], char *str);
+int numberOfWords(char *s);
 
 void getProducts(int start, int end)
 {
+    records = (struct DataSet *)malloc(1167023 * sizeof(struct DataSet));
+    similars = (DataSet **)malloc(50 * sizeof(DataSet *));
+    for (int i = 0; i < 50; i++)
+    {
+        similars[i] = (DataSet *)malloc(sizeof(DataSet) * 800000);
+    }
     // rows = end-start
     char *tmp;
-    int rows = 0;
+    int rows = start;
+    int count = 1;
+    char content[1024];
+    // Opening The file
     FILE *file = fopen("out.csv", "r");
 
     if (!file)
     {
         printf("Could not open the file\n");
-        return 0;
+        return;
     }
-
-    char content[1024];
+    // getting to the start record
+    while (count < start + 1)
+    {
+        fgets(content, 1024, file);
+        count++;
+    }
 
     for (int i = 0; fgets(content, 1024, file) != NULL; i++)
     {
@@ -58,18 +80,86 @@ void getProducts(int start, int end)
         tmp = strtok(NULL, ",");
         strcpy(records[i].ZIP, tmp);
 
-        // printf("index i= %i  ID: %s, %s, %s, %s, %s, %s, %s \n", i, records[i].id, records[i].product, records[i].issue,
-        //      records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+        printf("ID: %s, %s, %s, %s, %s, %s, %s \n", records[i].id, records[i].product, records[i].issue,
+               records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
 
+        rows++;
         if (rows > end)
         {
             break;
         }
-        rows++;
-        // printf("\n");
+
+        printf("\n");
     }
 
     fclose(file);
+}
+
+void sortProducts(float originalPersentage, int limit)
+{
+    float persentage;
+    int count;
+    int similarityCheck;
+    for (int i = 1; i < limit; i++)
+    {
+        // Check if the item in the similars array or not
+        //     if yes go to the next i
+        //     if not start the block
+        similarityCheck = checkSimilarity(records[i]);
+        // printf("similarityCheck: %d\n", similarityCheck);
+        if (similarityCheck == 1)
+        {
+            // Starting The Block
+            count = 0;
+            for (int j = i + 1; j < limit; j++)
+            {
+                persentage = similarityPersentage(records[i].product, records[j].product);
+                printf("ID(%s): %s , %s, %f\n", records[i].id, records[1].product, records[i].product, persentage);
+                if (persentage > originalPersentage)
+                {
+                    printf("%s , %s, j: %d\n", records[i].product, records[j].product, j);
+                    similars[numberOfArraysInSimilars][count] = records[j];
+                    count++;
+                }
+            }
+            // perscheck = similarityPersentage(records[i].product, records[j].product);
+            sizeOfEveryArrayInSimilars[numberOfArraysInSimilars] = count;
+            numberOfArraysInSimilars++;
+            // End of The Block
+        }
+    }
+}
+
+int main()
+{
+    // test(0);
+
+    // getProducts(0, 10);
+    // getProducts(11, 15);
+    // getProducts(16, 25);
+    // getProducts(0, 6);
+
+    // sortProducts(60, 6);
+    // showSimilars();
+    // printf("numberOfArraysInSimilars: %d\n", numberOfArraysInSimilars);
+    // for (int i = 0; i < numberOfArraysInSimilars; i++)
+    //     printf("sizeOfEveryArrayInSimilars [%s] (%d): %d\n", similars[i]->product, i, sizeOfEveryArrayInSimilars[i]);
+
+    // int arraySize = sizeof(similars[0]) / sizeof(struct DataSet);
+    // printf("size of array: %d \n ", arraySize);
+    //  char records[1000][7][1000];
+    //  getProducts(0, 100);
+    //  records = sortProducts(0,100);
+    //  int a = numberOfWords("Credit reporting credit repair services personal consumer reports");
+    //  printf("%d", a);
+
+    similarityPersentage("  Checking savings account ", "   Checking Savings account ");
+
+    // char newString[20][10];
+    // int k = wordsOfSentence(newString, "Checking savings account ");
+    // printf("k: %d", k);
+
+    return 0;
 }
 
 int numberOfWords(char *s)
@@ -83,20 +173,23 @@ int numberOfWords(char *s)
     return count;
 }
 
-void wordsOfSentence(char newString[20][10], char *str)
+int wordsOfSentence(char newString[30][20], char *str)
 {
     int i, j, ctr;
-
     j = 0;
     ctr = 0;
     for (i = 0; i <= (strlen(str)); i++)
     {
         // if space or NULL found, assign NULL into newString[ctr]
+
         if (str[i] == ' ' || str[i] == '\0')
         {
-            newString[ctr][j] = '\0';
-            ctr++; // for next word
-            j = 0; // for next word, init index to 0
+            if (strlen(newString[ctr]) != 0)
+            {
+                newString[ctr][j] = '\0';
+                ctr++; // for next word
+                j = 0; // for next word, init index to 0
+            }
         }
         else
         {
@@ -104,26 +197,26 @@ void wordsOfSentence(char newString[20][10], char *str)
             j++;
         }
     }
+    return ctr;
 }
 
-float similarityPersentage(char *a, char *b)
+float similarityPersentage(char a[20], char b[20])
 {
     int similarWords = 0;
     float persentage;
-    int len1 = numberOfWords(a);
-    int len2 = numberOfWords(b);
-    int greatest = len1;
+    char wordsArr1[30][10] = {""};
+    char wordsArr2[30][10] = {""};
+    // printf("-%s-\n", a);
+    // printf("-%s-\n", b);
+    int len1 = wordsOfSentence(wordsArr1, a);
+    int len2 = wordsOfSentence(wordsArr2, b);
+    int greatest;
 
-    if (greatest < len2)
-        greatest = len2;
-
-    char wordsArr1[20][10];
-    char wordsArr2[20][10];
-    wordsOfSentence(wordsArr1, a);
-    wordsOfSentence(wordsArr2, b);
-
+    // printf("len1: %d\n", len1);
+    // printf("len2: %d\n", len2);
     if (len1 > len2)
     {
+        greatest = len1;
         for (int i = 0; i < len1; i++)
         {
             for (int j = 0; j < len2; j++)
@@ -139,13 +232,14 @@ float similarityPersentage(char *a, char *b)
     }
     else
     {
+        greatest = len2;
         for (int i = 0; i < len2; i++)
         {
             for (int j = 0; j < len1; j++)
             {
                 if (strcmp(wordsArr2[i], wordsArr1[j]) == 0)
                 {
-                    // printf("%s %s, i: %d, j: %d\n", wordsArr1[i], wordsArr2[j], i, j);
+                    printf("%s %s, i: %d, j: %d\n", wordsArr1[i], wordsArr2[j], i, j);
                     similarWords++;
                     break;
                 }
@@ -155,7 +249,7 @@ float similarityPersentage(char *a, char *b)
 
     // printf("word num: %d\n", similarWords);
     persentage = (similarWords / (float)greatest) * 100;
-    // printf("persentage: %f", persentage);
+    printf("persentage: %f", persentage);
     return persentage;
 }
 
@@ -181,41 +275,6 @@ int checkSimilarity(struct DataSet data)
     return 1;
 }
 
-void sortProducts(float originalPersentage, int limit)
-{
-    float persentage;
-    int count;
-    int similarityCheck;
-    for (int i = 1; i < limit; i++)
-    {
-        // Check if the item in the similars array or not
-        //     if yes go to the next i
-        //     if not start the block
-        similarityCheck = checkSimilarity(records[i]);
-        // printf("similarityCheck: %d\n", similarityCheck);
-        if (similarityCheck == 1)
-        {
-            // Starting The Block
-            count = 0;
-            for (int j = i + 1; j < limit; j++)
-            {
-                // printf("before: %s , %s\n", records[1].product, records[i].product);
-                persentage = similarityPersentage(records[i].product, records[j].product);
-                if (persentage > originalPersentage)
-                {
-                    // printf("%s , %s, j: %d\n", records[i].product, records[j].product, j);
-                    similars[numberOfArraysInSimilars][count] = records[j];
-                    count++;
-                }
-            }
-            // perscheck = similarityPersentage(records[i].product, records[j].product);
-            sizeOfEveryArrayInSimilars[numberOfArraysInSimilars] = count;
-            numberOfArraysInSimilars++;
-            // End of The Block
-        }
-    }
-}
-
 void showSimilars()
 {
 
@@ -229,24 +288,28 @@ void showSimilars()
     }
 }
 
-int main()
+void test(int start)
 {
-    getProducts(0, 1000);
-    sortProducts(60, 1000);
-    showSimilars();
-    printf("numberOfArraysInSimilars: %d\n", numberOfArraysInSimilars);
-    printf("sizeOfEveryArrayInSimilars: %d\n", sizeOfEveryArrayInSimilars[2]);
+    char *tmp;
+    int rows = 0;
+    FILE *file = fopen("out.csv", "r");
 
-    // int arraySize = sizeof(similars[0]) / sizeof(struct DataSet);
-    // printf("size of array: %d \n ", arraySize);
-    //  char records[1000][7][1000];
-    //  getProducts(0, 100);
-    //  records = sortProducts(0,100);
-    //  int a = numberOfWords("Credit reporting credit repair services personal consumer reports");
-    //  printf("%d", a);
-    //  similarityPersentage("Credit reporting credit repair services personal consumer reports", "Credit reporting");
-    //  char newString[20][10];
-    //  wordsOfSentence(newString, "Credit reporting credit repair services personal consumer reports");
+    if (!file)
+    {
+        printf("Could not open the file\n");
+    }
+    int count = 0;
+    char content[1024];
 
-    return 0;
+    while (count < start + 1)
+    {
+        fgets(content, 1024, file);
+        count++;
+    }
+
+    printf("%s\n", content);
+    printf("ftell: %d\n", ftell(file));
+    fgets(content, 1024, file);
+    printf("%s\n", content);
+    printf("ftell: %d\n", ftell(file));
 }
