@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/time.h>
+#include <pthread.h>
+#include <time.h>
 
 typedef struct DataSet
 {
@@ -14,8 +17,15 @@ typedef struct DataSet
     char ZIP[10];
 } DataSet;
 
-struct DataSet *records;
+struct Args
+{
+    int start;
+    int end;
+} typedef Args;
+
 // struct DataSet records[100000];
+
+float originalPersentage = 60;
 
 struct DataSet **similars;
 int numberOfArraysInSimilars = 0;
@@ -26,14 +36,54 @@ void showSimilars();
 int checkSimilarity(struct DataSet data);
 float similarityPersentage(char *a, char *b);
 
-void getProducts(int start, int end)
+void sortProducts(struct DataSet *records, int limit)
 {
-    records = (struct DataSet *)malloc(10 * sizeof(struct DataSet));
-    similars = (DataSet **)malloc(50 * sizeof(DataSet *));
-    for (int i = 0; i < 50; i++)
+    float persentage;
+    int count;
+    int similarityCheck;
+    for (int i = 1; i < limit; i++)
     {
-        similars[i] = (DataSet *)malloc(sizeof(DataSet) * 10);
+        // Check if the item in the similars array or not
+        //     if yes go to the next i
+        //     if not start the block
+        similarityCheck = checkSimilarity(records[i]);
+        // printf("similarityCheck: %d\n", similarityCheck);
+        if (similarityCheck == 1)
+        {
+            // Starting The Block
+            count = 0;
+            similars[numberOfArraysInSimilars][count] = records[i];
+            count++;
+            for (int j = i + 1; j < limit; j++)
+            {
+                persentage = similarityPersentage(records[i].product, records[j].product);
+                printf("I(%d): %s , %s, %f, org: %f\n", j, records[i].product, records[j].product, persentage, originalPersentage);
+                if (persentage > originalPersentage)
+                {
+                    printf("%s , %s, j: %d\n", records[i].product, records[j].product, j);
+                    similars[numberOfArraysInSimilars][count] = records[j];
+                    count++;
+                }
+            }
+            // perscheck = similarityPersentage(records[i].product, records[j].product);
+            sizeOfEveryArrayInSimilars[numberOfArraysInSimilars] = count;
+            numberOfArraysInSimilars++;
+            // End of The Block
+        }
     }
+}
+
+void *getProducts(void *arguments)
+{
+    // getting start and end from arguments
+    struct Args *args = (struct Args *)arguments;
+    int start = args->start;
+    int end = args->end;
+
+    int limit = end - start;
+    struct DataSet *records;
+    records = (struct DataSet *)malloc((limit + 5) * sizeof(struct DataSet));
+
     // rows = end-start
     char *tmp;
     int rows = start;
@@ -91,43 +141,9 @@ void getProducts(int start, int end)
     }
 
     fclose(file);
-}
-
-void sortProducts(float originalPersentage, int limit)
-{
-    float persentage;
-    int count;
-    int similarityCheck;
-    for (int i = 1; i < limit; i++)
-    {
-        // Check if the item in the similars array or not
-        //     if yes go to the next i
-        //     if not start the block
-        similarityCheck = checkSimilarity(records[i]);
-        // printf("similarityCheck: %d\n", similarityCheck);
-        if (similarityCheck == 1)
-        {
-            // Starting The Block
-            count = 0;
-            similars[numberOfArraysInSimilars][count] = records[i];
-            count++;
-            for (int j = i + 1; j < limit; j++)
-            {
-                persentage = similarityPersentage(records[i].product, records[j].product);
-                printf("I(%d): %s , %s, %f\n", j, records[i].product, records[j].product, persentage);
-                if (persentage > originalPersentage)
-                {
-                    printf("%s , %s, j: %d\n", records[i].product, records[j].product, j);
-                    similars[numberOfArraysInSimilars][count] = records[j];
-                    count++;
-                }
-            }
-            // perscheck = similarityPersentage(records[i].product, records[j].product);
-            sizeOfEveryArrayInSimilars[numberOfArraysInSimilars] = count;
-            numberOfArraysInSimilars++;
-            // End of The Block
-        }
-    }
+    // sorting the records
+    // printf("\n\noriginalPersentage: %f\n\n", originalPersentage);
+    sortProducts(records, limit);
 }
 
 int wordsOfSentence(char newString[30][10], char *str)
@@ -161,17 +177,53 @@ int wordsOfSentence(char newString[30][10], char *str)
     return ctr;
 }
 
+void *threadedSort(int NUM_THREADS, float persentage)
+{
+    originalPersentage = persentage;
+    // next block will be moved to thread function
+    similars = (DataSet **)malloc(50 * sizeof(DataSet *));
+    for (int i = 0; i < 50; i++)
+    {
+        similars[i] = (DataSet *)malloc(sizeof(DataSet) * 800000);
+    }
+
+    int start, end;
+
+    int num = 1167020 / NUM_THREADS;
+
+    pthread_t threads[NUM_THREADS];
+    struct Args *args = malloc(sizeof(struct Args) * NUM_THREADS);
+
+    for (int i = 0; i < NUM_THREADS; i++)
+    {
+        args[i].start = i * num + 1;
+        args[i].end = (i + 1) * num;
+        // printf("start: %d, end: %d\n", args[i].start, args[i].end);
+        pthread_create(&threads[i], NULL, getProducts, &args[i]);
+    }
+    for (int i = 0; i < NUM_THREADS; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
+}
+
 int main()
 {
 
-    getProducts(0, 6);
+    threadedSort(1, 60);
 
-    sortProducts(60, 6);
+    // sortProducts(60, 6);
     showSimilars();
     printf("numberOfArraysInSimilars: %d\n", numberOfArraysInSimilars);
     for (int i = 0; i < numberOfArraysInSimilars; i++)
         printf("sizeOfEveryArrayInSimilars [%s] (%d): %d\n", similars[i]->product, i, sizeOfEveryArrayInSimilars[i]);
 
+    // float per = 25.00000;
+    // float org = 60.0;
+    // if (per > org)
+    // {
+    //     printf("Yeah\n");
+    // }
     // int arraySize = sizeof(similars[0]) / sizeof(struct DataSet);
     // printf("size of array: %d \n ", arraySize);
     //  char records[1000][7][1000];
