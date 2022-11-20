@@ -25,16 +25,14 @@ void test(int start);
 void showSimilars();
 int checkSimilarity(struct DataSet data);
 float similarityPersentage(char *a, char *b);
-int wordsOfSentence(char newString[30][20], char *str);
-int numberOfWords(char *s);
 
 void getProducts(int start, int end)
 {
-    records = (struct DataSet *)malloc(1167023 * sizeof(struct DataSet));
+    records = (struct DataSet *)malloc(10 * sizeof(struct DataSet));
     similars = (DataSet **)malloc(50 * sizeof(DataSet *));
     for (int i = 0; i < 50; i++)
     {
-        similars[i] = (DataSet *)malloc(sizeof(DataSet) * 800000);
+        similars[i] = (DataSet *)malloc(sizeof(DataSet) * 10);
     }
     // rows = end-start
     char *tmp;
@@ -111,10 +109,12 @@ void sortProducts(float originalPersentage, int limit)
         {
             // Starting The Block
             count = 0;
+            similars[numberOfArraysInSimilars][count] = records[i];
+            count++;
             for (int j = i + 1; j < limit; j++)
             {
                 persentage = similarityPersentage(records[i].product, records[j].product);
-                printf("ID(%s): %s , %s, %f\n", records[i].id, records[1].product, records[i].product, persentage);
+                printf("I(%d): %s , %s, %f\n", j, records[i].product, records[j].product, persentage);
                 if (persentage > originalPersentage)
                 {
                     printf("%s , %s, j: %d\n", records[i].product, records[j].product, j);
@@ -130,58 +130,15 @@ void sortProducts(float originalPersentage, int limit)
     }
 }
 
-int main()
-{
-    // test(0);
-
-    // getProducts(0, 10);
-    // getProducts(11, 15);
-    // getProducts(16, 25);
-    // getProducts(0, 6);
-
-    // sortProducts(60, 6);
-    // showSimilars();
-    // printf("numberOfArraysInSimilars: %d\n", numberOfArraysInSimilars);
-    // for (int i = 0; i < numberOfArraysInSimilars; i++)
-    //     printf("sizeOfEveryArrayInSimilars [%s] (%d): %d\n", similars[i]->product, i, sizeOfEveryArrayInSimilars[i]);
-
-    // int arraySize = sizeof(similars[0]) / sizeof(struct DataSet);
-    // printf("size of array: %d \n ", arraySize);
-    //  char records[1000][7][1000];
-    //  getProducts(0, 100);
-    //  records = sortProducts(0,100);
-    //  int a = numberOfWords("Credit reporting credit repair services personal consumer reports");
-    //  printf("%d", a);
-
-    similarityPersentage("  Checking savings account ", "   Checking Savings account ");
-
-    // char newString[20][10];
-    // int k = wordsOfSentence(newString, "Checking savings account ");
-    // printf("k: %d", k);
-
-    return 0;
-}
-
-int numberOfWords(char *s)
-{
-    int count = 1;
-    for (int i = 0; s[i] != '\0'; i++)
-    {
-        if (s[i] == ' ' && s[i + 1] != ' ')
-            count++;
-    }
-    return count;
-}
-
-int wordsOfSentence(char newString[30][20], char *str)
+int wordsOfSentence(char newString[30][10], char *str)
 {
     int i, j, ctr;
+
     j = 0;
     ctr = 0;
     for (i = 0; i <= (strlen(str)); i++)
     {
         // if space or NULL found, assign NULL into newString[ctr]
-
         if (str[i] == ' ' || str[i] == '\0')
         {
             if (strlen(newString[ctr]) != 0)
@@ -197,7 +154,43 @@ int wordsOfSentence(char newString[30][20], char *str)
             j++;
         }
     }
+    // for (int k = 0; k < ctr; k++)
+    // {
+    //     printf("-%s-\n", newString[k]);
+    // }
     return ctr;
+}
+
+int main()
+{
+
+    getProducts(0, 6);
+
+    sortProducts(60, 6);
+    showSimilars();
+    printf("numberOfArraysInSimilars: %d\n", numberOfArraysInSimilars);
+    for (int i = 0; i < numberOfArraysInSimilars; i++)
+        printf("sizeOfEveryArrayInSimilars [%s] (%d): %d\n", similars[i]->product, i, sizeOfEveryArrayInSimilars[i]);
+
+    // int arraySize = sizeof(similars[0]) / sizeof(struct DataSet);
+    // printf("size of array: %d \n ", arraySize);
+    //  char records[1000][7][1000];
+    //  getProducts(0, 100);
+    //  records = sortProducts(0,100);
+    //  int a = numberOfWords("Credit reporting credit repair services personal consumer reports");
+    //  printf("%d", a);
+
+    // float n = similarityPersentage("  Checking savings account ", "Debt collection");
+    // printf("p: %f\n", n);
+    // char newString[30][10] = {""};
+    // int g = wordsOfSentence(newString, " Checking savings account ");
+    // printf("g: %d\n", g);
+    // for (int k = 0; k < 3; k++)
+    // {
+    //     printf("-%s-\n", newString[k]);
+    // }
+
+    return 0;
 }
 
 float similarityPersentage(char a[20], char b[20])
@@ -211,9 +204,12 @@ float similarityPersentage(char a[20], char b[20])
     int len1 = wordsOfSentence(wordsArr1, a);
     int len2 = wordsOfSentence(wordsArr2, b);
     int greatest;
-
     // printf("len1: %d\n", len1);
     // printf("len2: %d\n", len2);
+    // for (int k = 0; k < len1; k++)
+    // {
+    //     printf("-%s-\n", wordsArr1[k]);
+    // }
     if (len1 > len2)
     {
         greatest = len1;
@@ -239,7 +235,7 @@ float similarityPersentage(char a[20], char b[20])
             {
                 if (strcmp(wordsArr2[i], wordsArr1[j]) == 0)
                 {
-                    printf("%s %s, i: %d, j: %d\n", wordsArr1[i], wordsArr2[j], i, j);
+                    // printf("%s %s, i: %d, j: %d\n", wordsArr1[i], wordsArr2[j], i, j);
                     similarWords++;
                     break;
                 }
@@ -249,7 +245,7 @@ float similarityPersentage(char a[20], char b[20])
 
     // printf("word num: %d\n", similarWords);
     persentage = (similarWords / (float)greatest) * 100;
-    printf("persentage: %f", persentage);
+    // printf("persentage: %f\n", persentage);
     return persentage;
 }
 
