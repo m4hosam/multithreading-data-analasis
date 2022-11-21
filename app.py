@@ -60,7 +60,19 @@ senaryo3.argtypes = [ctypes.c_int, ctypes.c_int,
 senaryo3.restype = None
 
 
-sort_products(1000000, 60)
+# startSenaryo4(int threadsNo)
+start_senaryo4 = mylib.startSenaryo4
+start_senaryo4.argtypes = [ctypes.c_int]
+start_senaryo4.restype = None
+
+# senaryo4(int start, int end, float orgPersentage, int threadNo)
+senaryo4 = mylib.senaryo4
+senaryo4.argtypes = [ctypes.c_int, ctypes.c_int,
+                     ctypes.c_float, ctypes.c_int]
+senaryo4.restype = None
+
+
+sort_products(1000, 60)
 
 # Save Similars to sorted.csv
 save_similars()
@@ -131,6 +143,28 @@ def multi_senaryo3(thread_num, persentage, complaintId, limit):
     for i in range(0, thread_num):
         threads[i].join()
 
+# senaryo4(int start, int end, float orgPersentage, int threadNo)
+
+
+def multi_senaryo4(thread_num, persentage, limit):
+    # creating threads
+    threads = []
+    num = limit//thread_num
+
+    for i in range(0, thread_num):
+        start = i*num+1
+        end = (i+1)*num
+        # print("start: ", start, "End: ", end)
+        t = threading.Thread(target=senaryo4, args=(
+            start, end, persentage, i,))
+        threads.append(t)
+
+    for i in range(0, thread_num):
+        threads[i].start()
+
+    for i in range(0, thread_num):
+        threads[i].join()
+
 
 if __name__ == "__main__":
     '''It is very important to use name == __main__ guard code with threads and multiprocessing'''
@@ -156,25 +190,48 @@ if __name__ == "__main__":
     # end = time.time()
 
     # print("Multithreading(8):  ", end-start)
-    print("senaryo 3 ")
+    # print("senaryo 3 ")
 
+    # start = time.time()
+    # multi_senaryo3(1, 70, 3236983, 10000)
+    # end = time.time()
+
+    # print("Multithreading(1):  ", end-start)
+    # start = time.time()
+    # multi_senaryo3(3, 70, 3236983, 10000)
+    # end = time.time()
+
+    # print("Multithreading(3):  ", end-start)
+    # start = time.time()
+    # multi_senaryo3(5, 70, 3236983, 10000)
+    # end = time.time()
+
+    # print("Multithreading(5):  ", end-start)
+    # start = time.time()
+    # multi_senaryo3(8, 70, 3236983, 10000)
+    # end = time.time()
+
+    # print("Multithreading(8):  ", end-start)
+
+    print("senaryo 4 ")
+    # multi_senaryo4(thread_num, persentage, limit):
     start = time.time()
-    multi_senaryo3(1, 70, 3237160, 1000000)
+    multi_senaryo4(1, 70,  1000)
     end = time.time()
 
     print("Multithreading(1):  ", end-start)
     start = time.time()
-    multi_senaryo3(3, 70, 3237160, 1000000)
+    multi_senaryo4(3, 70,  1000)
     end = time.time()
 
     print("Multithreading(3):  ", end-start)
     start = time.time()
-    multi_senaryo3(5, 70, 3237160, 1000000)
+    multi_senaryo4(5, 70,  1000)
     end = time.time()
 
     print("Multithreading(5):  ", end-start)
     start = time.time()
-    multi_senaryo3(8, 70, 3237160, 1000000)
+    multi_senaryo4(8, 70,  1000)
     end = time.time()
 
     print("Multithreading(8):  ", end-start)

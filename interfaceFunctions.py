@@ -8,13 +8,15 @@ from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 import app
 import time
 
+
 def init_data():
-    data = pd.read_csv("out.csv", encoding = "ISO-8859-1")
+    data = pd.read_csv("out.csv", encoding="ISO-8859-1")
     # data = data.drop(['Date received','Sub-product','Sub-issue','Consumer complaint narrative', 'Company public response', 'Tags', 'Consumer consent provided?', 'Submitted via','Date sent to company', 'Company response to consumer','Timely response?', 'Consumer disputed?'], axis=1)
     # data['Issue'] = data['Issue'].str.replace(r'[^\w\s]+', '')
     # data['Product'] = data['Product'].str.replace(r'[^\w\s]+', '')
     # data = data.dropna()
     return data
+
 
 class MainWindow:
     def __init__(self):
@@ -35,7 +37,8 @@ class MainWindow:
         self.ui.filteringSame_radio.setEnabled(False)
         self.ui.filtering_textEdit.setEnabled(False)
         self.ui.filteringKey_radio.setEnabled(False)
-        self.ui.filteringColumn_checkbox.clicked.connect(self.toggleFilteringCheckbox)
+        self.ui.filteringColumn_checkbox.clicked.connect(
+            self.toggleFilteringCheckbox)
         self.ui.ara_button.clicked.connect(self.getInput)
         self.ui.All_checkbox.clicked.connect(self.toggleColumnCheckboxes)
 
@@ -53,18 +56,24 @@ class MainWindow:
 
         self.ui.dataset_table.setRowCount(100)
         self.ui.dataset_table.setColumnCount(6)
-        
 
-        self.ui.dataset_table.setItem(0, 0, QtWidgets.QTableWidgetItem('Product'))
-        self.ui.dataset_table.setItem(0, 1, QtWidgets.QTableWidgetItem('Issue'))
-        self.ui.dataset_table.setItem(0, 2, QtWidgets.QTableWidgetItem('Company'))
-        self.ui.dataset_table.setItem(0, 3, QtWidgets.QTableWidgetItem('State'))
-        self.ui.dataset_table.setItem(0, 4, QtWidgets.QTableWidgetItem('ZIP code'))
-        self.ui.dataset_table.setItem(0, 5, QtWidgets.QTableWidgetItem('Complaint ID'))
+        self.ui.dataset_table.setItem(
+            0, 0, QtWidgets.QTableWidgetItem('Product'))
+        self.ui.dataset_table.setItem(
+            0, 1, QtWidgets.QTableWidgetItem('Issue'))
+        self.ui.dataset_table.setItem(
+            0, 2, QtWidgets.QTableWidgetItem('Company'))
+        self.ui.dataset_table.setItem(
+            0, 3, QtWidgets.QTableWidgetItem('State'))
+        self.ui.dataset_table.setItem(
+            0, 4, QtWidgets.QTableWidgetItem('ZIP code'))
+        self.ui.dataset_table.setItem(
+            0, 5, QtWidgets.QTableWidgetItem('Complaint ID'))
 
         counter = 0
         for index, row in data.iterrows():
-            list = [row['Product'], row['Issue'], row['Company'], row['State'], row['ZIP code'], row['Complaint ID']]
+            list = [row['Product'], row['Issue'], row['Company'],
+                    row['State'], row['ZIP code'], row['Complaint ID']]
             # print(list)
             counter += 1
             tableRows.append(list)
@@ -73,8 +82,9 @@ class MainWindow:
 
         for row in range(1, 100):
             for column in range(0, columnNum-1):
-                self.ui.dataset_table.setItem(row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
-    
+                self.ui.dataset_table.setItem(
+                    row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
+
     def init_resultsTable(self, data):
         columnNum = len(data.axes[1])
         rowNum = len(data.axes[0])
@@ -82,32 +92,36 @@ class MainWindow:
 
         self.ui.result_table.setRowCount(100)
         self.ui.result_table.setColumnCount(6)
-        
 
-        self.ui.result_table.setItem(0, 0, QtWidgets.QTableWidgetItem('Product'))
+        self.ui.result_table.setItem(
+            0, 0, QtWidgets.QTableWidgetItem('Product'))
         self.ui.result_table.setItem(0, 1, QtWidgets.QTableWidgetItem('Issue'))
-        self.ui.result_table.setItem(0, 2, QtWidgets.QTableWidgetItem('Company'))
+        self.ui.result_table.setItem(
+            0, 2, QtWidgets.QTableWidgetItem('Company'))
         self.ui.result_table.setItem(0, 3, QtWidgets.QTableWidgetItem('State'))
-        self.ui.result_table.setItem(0, 4, QtWidgets.QTableWidgetItem('ZIP code'))
-        self.ui.result_table.setItem(0, 5, QtWidgets.QTableWidgetItem('Complaint ID'))
+        self.ui.result_table.setItem(
+            0, 4, QtWidgets.QTableWidgetItem('ZIP code'))
+        self.ui.result_table.setItem(
+            0, 5, QtWidgets.QTableWidgetItem('Complaint ID'))
 
         counter = 0
         for index, row in data.iterrows():
-            list = [row['Product'], row['Issue'], row['Company'], row['State'], row['ZIP code'], row['Complaint ID']]
+            list = [row['Product'], row['Issue'], row['Company'],
+                    row['State'], row['ZIP code'], row['Complaint ID']]
             # print(list)
             counter += 1
             tableRows.append(list)
             if counter == 100:
                 break
 
-        for row in range(1, 100):
+        for row in range(0, 100):
             for column in range(0, columnNum-1):
-                self.ui.result_table.setItem(row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
-
+                self.ui.result_table.setItem(
+                    row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
 
     def show(self):
         self.main_win.show()
-    
+
     def toggleFilteringCheckbox(self):
         state = self.ui.filtering_combo.isEnabled()
         if state:
@@ -115,7 +129,7 @@ class MainWindow:
             self.ui.filteringSame_radio.setEnabled(False)
             self.ui.filtering_textEdit.setEnabled(False)
             self.ui.filteringKey_radio.setEnabled(False)
-        else: 
+        else:
             self.ui.filtering_combo.setEnabled(True)
             self.ui.filteringSame_radio.setEnabled(True)
             self.ui.filtering_textEdit.setEnabled(True)
@@ -132,7 +146,7 @@ class MainWindow:
             self.ui.All_checkbox.setChecked(False)
         if not self.ui.Issue_checkbox.isChecked():
             self.ui.All_checkbox.setChecked(False)
-    
+
     def toggleColumnCheckboxes(self):
         state = self.ui.All_checkbox.isChecked()
         if state:
@@ -153,7 +167,7 @@ class MainWindow:
     def getInput(self):
         threadNum = self.ui.threadNum_textEdit.toPlainText()
         similarityColumn = self.ui.similarity_combo.currentText()
-        similarityPercentage = self.ui.similarity_textEdit.toPlainText() 
+        similarityPercentage = self.ui.similarity_textEdit.toPlainText()
         if threadNum.isnumeric() == False:
             return
         elif similarityPercentage.isnumeric() == False:
@@ -163,7 +177,6 @@ class MainWindow:
         filteringRadioVal = 0
         filterBy = 0
 
-        
         if self.ui.filteringColumn_checkbox.isChecked():
             filterBy = self.ui.filtering_combo.currentText()
             if self.ui.filteringSame_radio.isChecked():
@@ -174,7 +187,8 @@ class MainWindow:
             filteringRadioVal = 0
             filterBy = 0
 
-        checkedColumns = ['Product','Issue','Company','State','ZIP code','Complaint ID']
+        checkedColumns = ['Product', 'Issue', 'Company',
+                          'State', 'ZIP code', 'Complaint ID']
         if not self.ui.All_checkbox.isChecked():
             if not self.ui.Product_checkbox.isChecked():
                 checkedColumns.remove('Product')
@@ -195,41 +209,50 @@ class MainWindow:
         self.similarityColumn = similarityColumn
         self.similarityPercentage = similarityPercentage
         self.checkedColumns = checkedColumns
-        
-        print("filtering radio val: " + self.filteringRadioVal)
-        print("filterBy : " + self.filterBy)
+
+        print("filtering radio val: " + str(self.filteringRadioVal))
+        print("filterBy : " + str(self.filterBy))
         print("thread Num: " + str(self.threadNum))
-        print("similarity column:" + self.similarityColumn)
-        print("similarity Percentage: " + self.similarityPercentage)
+        print("similarity column:" + str(self.similarityColumn))
+        print("similarity Percentage: " + str(self.similarityPercentage))
         print("checked Columns: " + str(self.checkedColumns))
 
         self.runCfunctions()
-    
+
     def init_threadTable(self, time):
 
         self.ui.thread_table.setRowCount(1)
         self.ui.thread_table.setColumnCount(2)
-        
 
-        self.ui.thread_table.setItem(0, 0, QtWidgets.QTableWidgetItem('total run time'))
-        self.ui.thread_table.setItem(0, 1, QtWidgets.QTableWidgetItem(str(time)))
+        self.ui.thread_table.setItem(
+            0, 0, QtWidgets.QTableWidgetItem('total run time'))
+        self.ui.thread_table.setItem(
+            0, 1, QtWidgets.QTableWidgetItem(str(time)))
 
     def runCfunctions(self):
-        start = time.time()
-        if self.filteringRadioVal == 0 and self.filterBy == 0:
-            print("00")
-            #run function 
+
+        if self.filteringRadioVal == 0:
+            print("111")
+            start = time.time()
+            self.results = pd.read_csv("sorted.csv", encoding="ISO-8859-1")
+            self.init_resultsTable(self.results)
+            end = time.time()
+            self.init_threadTable(end-start)
+            # run function
+
         elif self.filteringRadioVal == "same":
             app.multi_senaryo2(self.threadNum, self.similarityPercentage)
-            #run senaryo 2
+
+            results = pd.read_csv("result.csv", encoding="ISO-8859-1")
+            # run senaryo 2
+
         else:
-            app.multi_senaryo3(self.threadNum, self.filteringRadioVal, self.similarityPercentage)
-        end = time.time()
-            #run senaryo 3 with self.filterBy self.filteringRadioVal self.filterby
-        results = pd.read_csv("result.csv", encoding = "ISO-8859-1")
-        self.init_resultsTable(results)
-        self.init_threadTable(start-end)
-        
+            app.multi_senaryo3(
+                self.threadNum, self.filteringRadioVal, self.similarityPercentage)
+            results = pd.read_csv("result.csv", encoding="ISO-8859-1")
+
+        # run senaryo 3 with self.filterBy self.filteringRadioVal self.filterby
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -238,35 +261,15 @@ if __name__ == '__main__':
     sys.exit(app.exec_())
 
 
-
 # data.to_csv("newdata.csv")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # print(zips)
 
 # for i in range(10):
 #     cursor.execute(f'''
-#      INSERT INTO complaints 
-#      VALUES({date[i]}, {products[i]},{issues[i]},{companies[i]},{states[i]},{complaint_ids[i]},{zips[i]})   
+#      INSERT INTO complaints
+#      VALUES({date[i]}, {products[i]},{issues[i]},{companies[i]},{states[i]},{complaint_ids[i]},{zips[i]})
 #     ''')
 # cursor.commit()
 
@@ -290,7 +293,7 @@ if __name__ == '__main__':
 #     for result in results:
 #         print(result)
     # results = [executor.submit(do_something, sec) for sec in secs]
-    
+
     # for f in concurrent.futures.as_completed(results):
     #     print(f.result())
 

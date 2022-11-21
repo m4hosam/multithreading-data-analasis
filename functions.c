@@ -374,7 +374,7 @@ void senaryo2(int start, int end, float orgPersentage)
                 printf("-%d----%s, %s, %s, %s, %s, %s, %s\n", ctr, similars[i][j].id, similars[i][j].product, similars[i][j].issue,
                        similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
 
-                printf("limit: %d\n", limit);
+                // printf("limit: %d\n", limit);
                 strcpy(lastSimilars[ctr], similars[i][j].issue);
                 // printf("i: %d,j: %d, limit: %d, start: %d, end: %d\n", i, j, limit, start, end);
                 fprintf(file, "%s, %s, %s, %s, %s, %s, %s", similars[i][j].id, similars[i][j].product, similars[i][j].issue,
@@ -447,7 +447,7 @@ void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int lim
             if (persentage > orgPersentage)
             {
                 // printf("-1----%s, %s, %s, %s, %s, %s, %s\n", records[i].id, records[i].product, records[i].issue,
-                //    records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+                //        records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
                 fprintf(file, "%s, %s, %s, %s, %s, %s, %s", records[i].id, records[i].product, records[i].issue,
                         records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
             }
@@ -471,11 +471,61 @@ void startSenaryo4(int threadsNo)
         fclose(file);
     }
 }
+void senaryo4(int start, int end, float orgPersentage, int threadNo)
+{
+    // threads No is used to store the result to the related csv file
+    float persentage;
+    int count;
+    int ctr = 0;
+    char lastSimilars[5000][200];
+    int similarityCheck;
+    char fileName[20];
+    sprintf(fileName, "senaryo4_%d.csv", threadNo);
+    FILE *file = fopen(fileName, "a");
 
-// void senaryo4(int start, int end, float persentage, int threadNo)
-// {
-//     // threads No is used to store the result to the related csv file
-// }
+    for (int i = start; i < end; i++)
+    {
+        // Check if the item in the similars array or not
+        //     if yes go to the next i
+        //     if not start the block
+        similarityCheck = checkSimilarityWithArray(lastSimilars, records[i].issue, ctr);
+        // printf("similarityCheck: %d\n", similarityCheck);
+        if (similarityCheck == 1)
+        {
+            // Starting The Block
+            count = 0;
+            // store the first element you see
+            // printf("-1----%s, %s, %s, %s, %s, %s, %s\n", records[i].id, records[i].product, records[i].issue,
+            //        records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+            fprintf(file, "%s, %s, %s, %s, %s, %s, %s", records[i].id, records[i].product, records[i].issue,
+                    records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+
+            // printf("limit: %d\n", limit);
+            strcpy(lastSimilars[ctr], records[i].issue);
+            // printf("i: %d,j: %d, limit: %d, start: %d, end: %d\n", i, j, limit, start, end);
+            // printf("33333333333333333\n");
+            count++;
+            ctr++;
+            for (int j = i + 1; j < end; j++)
+            {
+                persentage = similarityPersentage(records[i].issue, records[j].issue);
+                // printf("I(%d): %s , %s, %f, org: %f\n", j, records[i].product, records[j].product, persentage, originalPersentage);
+                if (persentage > orgPersentage)
+                {
+                    // printf("-----%s, %s, %s, %s, %s, %s, %s\n", records[j].id, records[j].product, records[j].issue,
+                    //        records[j].company, records[j].state, records[j].complaintId, records[j].ZIP);
+                    fprintf(file, "%s, %s, %s, %s, %s, %s, %s", records[j].id, records[j].product, records[j].issue,
+                            records[j].company, records[j].state, records[j].complaintId, records[j].ZIP);
+
+                    count++;
+                }
+            }
+            // End of The Block
+        }
+    }
+
+    fclose(file);
+}
 
 int getNumberOfArraysInSimilars()
 {
