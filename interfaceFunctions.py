@@ -7,7 +7,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
 def init_data():
-    data = pd.read_csv('nostopwords.csv')
+    data = pd.read_csv("out.csv", encoding = "ISO-8859-1")
     # data = data.drop(['Date received','Sub-product','Sub-issue','Consumer complaint narrative', 'Company public response', 'Tags', 'Consumer consent provided?', 'Submitted via','Date sent to company', 'Company response to consumer','Timely response?', 'Consumer disputed?'], axis=1)
     # data['Issue'] = data['Issue'].str.replace(r'[^\w\s]+', '')
     # data['Product'] = data['Product'].str.replace(r'[^\w\s]+', '')
@@ -49,7 +49,7 @@ class MainWindow:
         rowNum = len(data.axes[0])
         tableRows = []
 
-        self.ui.dataset_table.setRowCount(21)
+        self.ui.dataset_table.setRowCount(100)
         self.ui.dataset_table.setColumnCount(6)
         
 
@@ -66,11 +66,11 @@ class MainWindow:
             # print(list)
             counter += 1
             tableRows.append(list)
-            if counter == 20:
+            if counter == 100:
                 break
 
-        for row in range(1, 20):
-            for column in range(0, columnNum-2):
+        for row in range(1, 100):
+            for column in range(0, columnNum-1):
                 self.ui.dataset_table.setItem(row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
 
 
@@ -165,12 +165,26 @@ class MainWindow:
         self.similarityPercentage = similarityPercentage
         self.checkedColumns = checkedColumns
         
-        print(self.filteringRadioVal)
-        print(self.filterBy)
-        print(self.threadNum)
-        print(self.similarityColumn)
-        print(self.similarityPercentage)
-        print(self.checkedColumns)
+        print("filtering radio val: " + self.filteringRadioVal)
+        print("filterBy : " + self.filterBy)
+        print("thread Num: " + str(self.threadNum))
+        print("similarity column:" + self.similarityColumn)
+        print("similarity Percentage: " + self.similarityPercentage)
+        print("checked Columns: " + str(self.checkedColumns))
+
+        self.runCfunctions()
+
+    def runCfunctions(self):
+        if self.filteringRadioVal == 0 and self.filerBy == 0:
+            print("00")
+            #run function 
+        elif self.filteringRadioVal == "same":
+            print("00")
+            #run senaryo 2
+        else:
+            print("oo")
+            #run senaryo 3 with self.filterBy self.filteringRadioVal self.filterby
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
