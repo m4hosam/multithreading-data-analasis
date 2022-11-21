@@ -1,5 +1,5 @@
 import sys
-from ctypes import *
+# from ctypes import *
 from ctypes import cdll
 import ctypes.util
 import time
@@ -39,9 +39,20 @@ save_similars.restype = None
 start_senaryo2 = mylib.startSenaryo2
 start_senaryo2.restype = None
 
+
+# senaryo2(int start, int end, float orgPersentage)
 senaryo2 = mylib.senaryo2
 senaryo2.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_float]
 senaryo2.restype = None
+
+start_senaryo3 = mylib.startSenaryo3
+start_senaryo3.restype = None
+
+# senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit)
+senaryo3 = mylib.senaryo3
+senaryo3.argtypes = [ctypes.c_int, ctypes.c_int,
+                     ctypes.c_int, ctypes.c_float, ctypes.c_int]
+senaryo3.restype = None
 
 
 #  arguments (limit,persentage)
@@ -54,7 +65,19 @@ save_similars()
 start_senaryo2()
 
 # run senaryo2
+# multithreading will be here from start array to end
+# arguments are (start array, end array, persentage)
 senaryo2(0, 18, 70)
+
+
+# clearing the file to run senaryo 3
+start_senaryo3()
+
+# run senaryo3
+# multithreading will be here from start record to end record
+# arguments are senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit)
+# limit is the same value for sort_products function
+senaryo3(0, 100, 3237160, 50, 1000)
 
 
 # stdc = cdll.LoadLibrary("libc.so.6")  # or similar to load c library

@@ -401,3 +401,55 @@ void senaryo2(int start, int end, float orgPersentage)
     // Save them to senaryo2.csv
     fclose(file);
 }
+void startSenaryo3()
+{
+    FILE *file = fopen("senaryo3.csv", "w");
+    fclose(file);
+}
+
+void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit)
+{
+    int ctr = 0;
+    int count = 0;
+    int similarityCheck;
+    char lastSimilars[50][200] = {""};
+    FILE *file = fopen("senaryo3.csv", "a");
+    float persentage;
+    char complaintId[20];
+    char issue[200] = "";
+    sprintf(complaintId, "%d", complaintIdi);
+
+    for (int idx = 0; idx < limit; idx++)
+    {
+        if (strcmp(records[idx].complaintId, complaintId) == 0)
+        {
+            strcpy(issue, records[idx].issue);
+            break;
+        }
+    }
+
+    if (strcmp(issue, "") != 0)
+    {
+        printf("Issue: %s\n\n", issue);
+
+        for (int i = start; i < end; i++)
+        {
+
+            persentage = similarityPersentage(records[i].issue, issue);
+            // printf("I(%d): %s , %s, %f, org: %f\n", j, records[i].product, records[j].product, persentage, originalPersentage);
+            if (persentage > orgPersentage)
+            {
+                printf("-1----%s, %s, %s, %s, %s, %s, %s\n", records[i].id, records[i].product, records[i].issue,
+                       records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+                fprintf(file, "%s, %s, %s, %s, %s, %s, %s", records[i].id, records[i].product, records[i].issue,
+                        records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+            }
+        }
+    }
+    else
+    {
+        printf("Error in complaintId \nnot found\n");
+    }
+
+    fclose(file);
+}
