@@ -26,6 +26,8 @@ struct Args
 
 // struct DataSet records[100000];
 
+struct DataSet *records;
+
 float originalPersentage = 60;
 
 struct DataSet **similars;
@@ -56,6 +58,10 @@ int wordsOfSentence(char newString[30][10], char *str)
             j++;
         }
     }
+    // for (int k = 0; k < ctr; k++)
+    // {
+    //     printf("-%s-\n", newString[k]);
+    // }
     return ctr;
 }
 
@@ -127,10 +133,36 @@ int checkSimilarity(struct DataSet data)
     }
     for (int i = 0; i < numberOfArraysInSimilars; i++)
     {
-        persentage = similarityPersentage(data.product, similars[i]->product);
+        persentage = similarityPersentage(data.product, similars[i][0].product);
         // printf("persentage: %f\n", persentage);
         if (persentage == 100.0)
         {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int checkSimilarityWithArray(char lastSimilars[50][200], char *str, int count)
+{
+    // Takes the data and compare it to the similars array
+    // if 100% match return 0 -> Don't Start The Block Go to the next i (Data Set)
+    // else return 1 -> Start Searching for the record with the Block
+
+    float persentage;
+    // printf("Count: %d\n\n", count);
+    if (count == 0)
+    {
+        return 1;
+    }
+    for (int i = 0; i < count; i++)
+    {
+        // printf("\nForm check siimilarity: -%s-and-%s-\n\n", lastSimilars[i], str);
+        persentage = similarityPersentage(lastSimilars[i], str);
+        // printf("persentage: %f\n", persentage);
+        if (persentage == 100.0)
+        {
+            // printf("\n2222222Form check siimilarity: -%s-and-%s-\n\n", lastSimilars[i], str);
             return 0;
         }
     }
@@ -206,8 +238,7 @@ void sortProducts(struct DataSet *records, int limit)
 void getProducts(int start, int end)
 {
     int limit = end - start;
-    struct DataSet *records;
-    records = (struct DataSet *)malloc((limit + 5) * sizeof(struct DataSet));
+
     // rows = end-start
     char *tmp;
     int rows = start;
@@ -228,12 +259,6 @@ void getProducts(int start, int end)
         count++;
     }
 
-    FILE *datafile;
-    if ((datafile = fopen("datafile.bin", "w")) == NULL)
-    {
-        printf("Error Opening\n");
-        return;
-    }
     // printf("22222222\n");
     struct DataSet newData;
     for (int i = 0; fgets(content, 1024, file) != NULL; i++)
@@ -281,13 +306,15 @@ void getProducts(int start, int end)
     }
 
     fclose(file);
-    fclose(datafile);
     sortProducts(records, limit);
+    free(records);
 }
 
 void NoThreadSort(int limit, float persentage)
 {
     originalPersentage = persentage;
+
+    records = (struct DataSet *)malloc((limit + 5) * sizeof(struct DataSet));
     // next block will be moved to thread function
     similars = (DataSet **)malloc(20 * sizeof(DataSet *));
     for (int i = 0; i < 20; i++)
@@ -297,6 +324,80 @@ void NoThreadSort(int limit, float persentage)
 
     int start, end;
 
-    // printf("11111111111\n");
     getProducts(0, limit);
+}
+
+void startSenaryo2()
+{
+    // clear the file of senaryo 2;
+    FILE *file = fopen("senaryo2.csv", "w");
+    fclose(file);
+}
+
+void senaryo2(int start, int end, float orgPersentage)
+{
+    int ctr = 0;
+    char lastSimilars[50][200] = {""};
+    FILE *file = fopen("senaryo2.csv", "a");
+
+    // read arrays of similars
+    // arrays will be divided on threads
+    // numberOfArraysInSimilars / threads
+    int limit;
+    int count = 0;
+    int numberOfArraysInSenaryo2;
+    float persentage;
+    int similarityCheck;
+    if (end >= numberOfArraysInSimilars)
+    {
+        end = numberOfArraysInSimilars;
+    }
+
+    // loop in the arrays to get Issue similars with the persentage
+    for (int i = start; i < end; i++)
+    {
+        limit = sizeOfEveryArrayInSimilars[i];
+        // loop inside every array of selected similar arrays
+        for (int j = 0; j < limit; j++)
+        {
+            //  printf("similarityCheck: %d\n", similarityCheck);
+            // for (int z = 0; z < count; z++)
+            // {
+            // }
+            similarityCheck = checkSimilarityWithArray(lastSimilars, similars[i][j].issue, ctr);
+            if (similarityCheck == 1)
+            {
+
+                // Starting The Block
+                // comparing each item in similars array to the next till the end
+                count = 0;
+                // store the first element you see
+                printf("-1----%s, %s, %s, %s, %s, %s, %s\n", similars[i][j].id, similars[i][j].product, similars[i][j].issue,
+                       similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
+                strcpy(lastSimilars[ctr], similars[i][j].issue);
+                fprintf(file, "%s, %s, %s, %s, %s, %s, %s", similars[i][j].id, similars[i][j].product, similars[i][j].issue,
+                        similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
+                count++;
+                ctr++;
+                for (int k = j + 1; k < limit; k++)
+                {
+                    persentage = similarityPersentage(similars[i][j].issue, similars[i][k].issue);
+                    // printf("I(%d): %s , %s, %f, org: %f\n", j, records[i].product, records[j].product, persentage, originalPersentage);
+                    // if element found store it
+                    if (persentage > orgPersentage)
+                    {
+                        printf("-----%s, %s, %s, %s, %s, %s, %s\n", similars[i][k].id, similars[i][k].product, similars[i][k].issue,
+                               similars[i][k].company, similars[i][k].state, similars[i][k].complaintId, similars[i][k].ZIP);
+                        fprintf(file, "%s, %s, %s, %s, %s, %s, %s", similars[i][k].id, similars[i][k].product, similars[i][k].issue,
+                                similars[i][k].company, similars[i][k].state, similars[i][k].complaintId, similars[i][k].ZIP);
+                        count++;
+                    }
+                }
+                // End of The Block
+            }
+        }
+    }
+    // Add them into array
+    // Save them to senaryo2.csv
+    fclose(file);
 }

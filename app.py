@@ -22,15 +22,10 @@ if not mylib_path:
     print("Unable to find the specified library.1")
     sys.exit()
 
-# stdc = cdll.LoadLibrary("libc.so.6")  # or similar to load c library
-# stdcpp = cdll.LoadLibrary("libstdc++.so.6")  # or similar to load c++ library
-# mylib = cdll.LoadLibrary("C:\\Users\\moham\\Desktop\\Yazlab\\functions.so")
+
 mylib = ctypes.CDLL(mylib_path)
 
 print("Well")
-
-
-# mylib.test_empty()
 
 
 sort_products = mylib.NoThreadSort
@@ -41,6 +36,31 @@ sort_products.restype = None
 save_similars = mylib.saveSimilars
 save_similars.restype = None
 
+start_senaryo2 = mylib.startSenaryo2
+start_senaryo2.restype = None
+
+senaryo2 = mylib.senaryo2
+senaryo2.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_float]
+senaryo2.restype = None
+
+
+#  arguments (limit,persentage)
+sort_products(1000, 60)
+
+# Save Similars to sorted.csv
+save_similars()
+
+# start senaryo2
+start_senaryo2()
+
+# run senaryo2
+senaryo2(0, 18, 70)
+
+
+# stdc = cdll.LoadLibrary("libc.so.6")  # or similar to load c library
+# stdcpp = cdll.LoadLibrary("libstdc++.so.6")  # or similar to load c++ library
+# mylib = cdll.LoadLibrary("C:\\Users\\moham\\Desktop\\Yazlab\\functions.so")
+
 # test = mylib.test
 # test.argtypes = [ctypes.c_int, ctypes.c_int]
 # test.restype = ctypes.c_int
@@ -48,13 +68,6 @@ save_similars.restype = None
 # test_passing_array = mylib.test_passing_array
 # test_passing_array.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_int]
 # test_passing_array.restype = None
-
-# mylib.test_empty()
-
-sort_products(100, 60)
-# Save Similars to sorted.csv
-save_similars()
-
 
 # def threaded():
 #     test(0, 1000000000)
