@@ -58,10 +58,10 @@ void sortProducts1(struct DataSet *records, int limit)
             for (int j = i + 1; j < limit; j++)
             {
                 persentage = similarityPersentage(records[i].product, records[j].product);
-                printf("I(%d): %s , %s, %f, org: %f\n", j, records[i].product, records[j].product, persentage, originalPersentage);
+                // printf("I(%d): %s , %s, %f, org: %f\n", j, records[i].product, records[j].product, persentage, originalPersentage);
                 if (persentage > originalPersentage)
                 {
-                    printf("%s , %s, j: %d\n", records[i].product, records[j].product, j);
+                    // printf("%s , %s, j: %d\n", records[i].product, records[j].product, j);
                     similars[numberOfArraysInSimilars][count] = records[j];
                     count++;
                 }
@@ -142,6 +142,7 @@ void *getProducts(void *arguments)
     {
         printf("Could not open the file\n");
     }
+
     // getting to the start record
     while (count < start + 1)
     {
@@ -189,7 +190,7 @@ void *getProducts(void *arguments)
     // sorting the records
     // printf("\n\noriginalPersentage: %f\n\n", originalPersentage);
     printf("Done Reading start: %d\n", start);
-    sortProducts(records, limit);
+    sortProducts1(records, limit);
 }
 
 int wordsOfSentence(char newString[30][10], char *str)
@@ -235,7 +236,7 @@ void *threadedSort(int NUM_THREADS, float persentage)
 
     int start, end;
 
-    int num = 1000 / NUM_THREADS;
+    int num = 1000000 / NUM_THREADS;
 
     pthread_t threads[NUM_THREADS];
     struct Args *args = malloc(sizeof(struct Args) * NUM_THREADS);
@@ -253,18 +254,152 @@ void *threadedSort(int NUM_THREADS, float persentage)
     }
 }
 
+void getProducts1(int start, int end)
+{
+    int limit = end - start;
+    struct DataSet *records;
+    records = (struct DataSet *)malloc((limit + 5) * sizeof(struct DataSet));
+    // rows = end-start
+    char *tmp;
+    int rows = start;
+    int count = 1;
+    char content[1024];
+    // Opening The file
+    FILE *file = fopen("out.csv", "r");
+
+    if (!file)
+    {
+        printf("Could not open the file\n");
+        return;
+    }
+    // getting to the start record
+    while (count < start + 1)
+    {
+        fgets(content, 1024, file);
+        count++;
+    }
+
+    FILE *datafile;
+    if ((datafile = fopen("datafile.bin", "w")) == NULL)
+    {
+        printf("Error Opening\n");
+        return;
+    }
+    // printf("22222222\n");
+    struct DataSet newData;
+    for (int i = 0; fgets(content, 1024, file) != NULL; i++)
+    {
+        // printf("33333\n");
+        tmp = strtok(content, ",");
+        strcpy(records[i].id, tmp);
+        strcpy(newData.id, tmp);
+
+        tmp = strtok(NULL, ",");
+        strcpy(records[i].product, tmp);
+        strcpy(newData.product, tmp);
+
+        tmp = strtok(NULL, ",");
+        strcpy(records[i].issue, tmp);
+        strcpy(newData.issue, tmp);
+
+        tmp = strtok(NULL, ",");
+        strcpy(records[i].company, tmp);
+        strcpy(newData.company, tmp);
+
+        tmp = strtok(NULL, ",");
+        strcpy(records[i].state, tmp);
+        strcpy(newData.state, tmp);
+
+        tmp = strtok(NULL, ",");
+        strcpy(records[i].complaintId, tmp);
+        strcpy(newData.complaintId, tmp);
+
+        tmp = strtok(NULL, ",");
+        strcpy(records[i].ZIP, tmp);
+        strcpy(newData.ZIP, tmp);
+
+        // printf("ID: %s, %s, %s, %s, %s, %s, %s \n", records[i].id, records[i].product, records[i].issue,
+        //        records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+        fwrite(&newData, sizeof(struct DataSet), 1, datafile);
+
+        rows++;
+        if (rows > end)
+        {
+            break;
+        }
+
+        printf("\n");
+    }
+
+    fclose(file);
+    fclose(datafile);
+    // sortProducts1(records, limit);
+}
+
+void NoThreadSort(int limit, float persentage)
+{
+    originalPersentage = persentage;
+    // next block will be moved to thread function
+    similars = (DataSet **)malloc(20 * sizeof(DataSet *));
+    for (int i = 0; i < 20; i++)
+    {
+        similars[i] = (DataSet *)malloc(sizeof(DataSet) * 100000);
+    }
+
+    int start, end;
+
+    // printf("11111111111\n");
+    getProducts1(0, limit);
+}
+
+void readBinFile()
+{
+    FILE *file;
+    if ((file = fopen("datafile.bin", "r")) == NULL)
+    {
+        printf("Error Opening\n");
+        return;
+    }
+    fseek(file, 0, SEEK_END);
+    int endOfTheFile = ftell(file);
+    int idx;
+
+    if (endOfTheFile == 0)
+    {
+        printf("No records");
+    }
+    rewind(file);
+    for (int i = 0;; i++)
+    {
+        struct DataSet data;
+        size_t num = fread(&data, sizeof(struct DataSet), 1, file);
+        printf("size: %d\n", num);
+        printf("ID: %s, %s, %s, %s, %s, %s, %s \n", data.id, data.product, data.issue,
+               data.company, data.state, data.complaintId, data.ZIP);
+        idx = ftell(file);
+        if (idx == endOfTheFile)
+        {
+            break;
+        }
+    }
+
+    fclose(file);
+}
+
 int main()
 {
     clock_t time_start = clock();
-    threadedSort(60, 60);
+    // NoThreadSort(1000000, 60);
+    // readBinFile();
+    // threadedSort(8, 60);
     clock_t time_end = clock();
     double cpu_time_used = ((double)(time_end - time_start)) / CLOCKS_PER_SEC;
-    printf("Time: %f\n", cpu_time_used);
+    printf("\nTime: %f\n", cpu_time_used);
     // sortProducts(60, 6);
     // showSimilars();
     // printf("numberOfArraysInSimilars: %d\n", numberOfArraysInSimilars);
-    for (int i = 0; i < 18; i++)
-        printf("sizeOfEveryArrayInSimilars [%s] (%d): %d\n", similars[i]->product, i, sizeOfEveryArrayInSimilars[i]);
+    // for (int i = 0; i < numberOfArraysInSimilars; i++)
+    //     printf("sizeOfEveryArrayInSimilars [%s] (%d): %d\n", similars[i]->product, i, sizeOfEveryArrayInSimilars[i]);
 
     // float per = 25.00000;
     // float org = 60.0;
@@ -373,39 +508,25 @@ int checkSimilarity(struct DataSet data)
 
 void showSimilars()
 {
-
-    for (int i = 0; i < 18; i++)
-    {
-        for (int j = 0; j < sizeOfEveryArrayInSimilars[i]; j++)
-        {
-            printf("index i= %i  ID: %s, %s, %s, %s, %s, %s, %s \n", i, similars[i][j].id, similars[i][j].product, similars[i][j].issue,
-                   similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
-        }
-    }
-}
-
-void test(int start)
-{
-    char *tmp;
-    int rows = 0;
-    FILE *file = fopen("out.csv", "r");
+    FILE *file = fopen("sorted.csv", "w");
 
     if (!file)
     {
         printf("Could not open the file\n");
+        return;
     }
-    int count = 0;
-    char content[1024];
 
-    while (count < start + 1)
+    for (int i = 0; i < numberOfArraysInSimilars; i++)
     {
-        fgets(content, 1024, file);
-        count++;
-    }
+        for (int j = 0; j < sizeOfEveryArrayInSimilars[i]; j++)
+        {
+            fprintf(file, "%s, %s, %s, %s, %s, %s, %s", similars[i][j].id, similars[i][j].product, similars[i][j].issue,
+                    similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
 
-    printf("%s\n", content);
-    printf("ftell: %d\n", ftell(file));
-    fgets(content, 1024, file);
-    printf("%s\n", content);
-    printf("ftell: %d\n", ftell(file));
+            if (ferror(file))
+            {
+                printf("Error in file");
+            }
+        }
+    }
 }
