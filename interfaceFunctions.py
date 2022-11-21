@@ -5,6 +5,8 @@ import pandas as pd
 from interfaceUI import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+import app
+import time
 
 def init_data():
     data = pd.read_csv("out.csv", encoding = "ISO-8859-1")
@@ -72,6 +74,35 @@ class MainWindow:
         for row in range(1, 100):
             for column in range(0, columnNum-1):
                 self.ui.dataset_table.setItem(row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
+    
+    def init_resultsTable(self, data):
+        columnNum = len(data.axes[1])
+        rowNum = len(data.axes[0])
+        tableRows = []
+
+        self.ui.result_table.setRowCount(100)
+        self.ui.result_table.setColumnCount(6)
+        
+
+        self.ui.result_table.setItem(0, 0, QtWidgets.QTableWidgetItem('Product'))
+        self.ui.result_table.setItem(0, 1, QtWidgets.QTableWidgetItem('Issue'))
+        self.ui.result_table.setItem(0, 2, QtWidgets.QTableWidgetItem('Company'))
+        self.ui.result_table.setItem(0, 3, QtWidgets.QTableWidgetItem('State'))
+        self.ui.result_table.setItem(0, 4, QtWidgets.QTableWidgetItem('ZIP code'))
+        self.ui.result_table.setItem(0, 5, QtWidgets.QTableWidgetItem('Complaint ID'))
+
+        counter = 0
+        for index, row in data.iterrows():
+            list = [row['Product'], row['Issue'], row['Company'], row['State'], row['ZIP code'], row['Complaint ID']]
+            # print(list)
+            counter += 1
+            tableRows.append(list)
+            if counter == 100:
+                break
+
+        for row in range(1, 100):
+            for column in range(0, columnNum-1):
+                self.ui.result_table.setItem(row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
 
 
     def show(self):
@@ -173,17 +204,31 @@ class MainWindow:
         print("checked Columns: " + str(self.checkedColumns))
 
         self.runCfunctions()
+    
+    def init_threadTable(self, time):
+
+        self.ui.thread_table.setRowCount(1)
+        self.ui.thread_table.setColumnCount(2)
+        
+
+        self.ui.thread_table.setItem(0, 0, QtWidgets.QTableWidgetItem('total run time'))
+        self.ui.thread_table.setItem(0, 1, QtWidgets.QTableWidgetItem(str(time)))
 
     def runCfunctions(self):
-        if self.filteringRadioVal == 0 and self.filerBy == 0:
+        start = time.time()
+        if self.filteringRadioVal == 0 and self.filterBy == 0:
             print("00")
             #run function 
         elif self.filteringRadioVal == "same":
-            print("00")
+            app.multi_senaryo2(self.threadNum, self.similarityPercentage)
             #run senaryo 2
         else:
-            print("oo")
+            app.multi_senaryo3(self.threadNum, self.filteringRadioVal, self.similarityPercentage)
+        end = time.time()
             #run senaryo 3 with self.filterBy self.filteringRadioVal self.filterby
+        results = pd.read_csv("result.csv", encoding = "ISO-8859-1")
+        self.init_resultsTable(results)
+        self.init_threadTable(start-end)
         
 
 if __name__ == '__main__':
