@@ -307,7 +307,6 @@ void getProducts(int start, int end)
 
     fclose(file);
     sortProducts(records, limit);
-    free(records);
 }
 
 void NoThreadSort(int limit, float persentage)
@@ -372,10 +371,10 @@ void senaryo2(int start, int end, float orgPersentage)
                 // comparing each item in similars array to the next till the end
                 count = 0;
                 // store the first element you see
-                // printf("-%d----%s, %s, %s, %s, %s, %s, %s\n", ctr, similars[i][j].id, similars[i][j].product, similars[i][j].issue,
-                //        similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
+                printf("-%d----%s, %s, %s, %s, %s, %s, %s\n", ctr, similars[i][j].id, similars[i][j].product, similars[i][j].issue,
+                       similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
 
-                // printf("limit: %d\n", limit);
+                printf("limit: %d\n", limit);
                 strcpy(lastSimilars[ctr], similars[i][j].issue);
                 // printf("i: %d,j: %d, limit: %d, start: %d, end: %d\n", i, j, limit, start, end);
                 fprintf(file, "%s, %s, %s, %s, %s, %s, %s", similars[i][j].id, similars[i][j].product, similars[i][j].issue,
@@ -390,8 +389,8 @@ void senaryo2(int start, int end, float orgPersentage)
                     // if element found store it
                     if (persentage > orgPersentage)
                     {
-                        // printf("-----%s, %s, %s, %s, %s, %s, %s\n", similars[i][k].id, similars[i][k].product, similars[i][k].issue,
-                        //        similars[i][k].company, similars[i][k].state, similars[i][k].complaintId, similars[i][k].ZIP);
+                        printf("-----%s, %s, %s, %s, %s, %s, %s\n", similars[i][k].id, similars[i][k].product, similars[i][k].issue,
+                               similars[i][k].company, similars[i][k].state, similars[i][k].complaintId, similars[i][k].ZIP);
                         fprintf(file, "%s, %s, %s, %s, %s, %s, %s", similars[i][k].id, similars[i][k].product, similars[i][k].issue,
                                 similars[i][k].company, similars[i][k].state, similars[i][k].complaintId, similars[i][k].ZIP);
                         count++;
@@ -413,28 +412,32 @@ void startSenaryo3()
 
 void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit)
 {
+    // printf("1111111111\n");
     int ctr = 0;
     int count = 0;
     int similarityCheck;
-    char lastSimilars[50][200] = {""};
+    char lastSimilars[5000][200] = {""};
+    // printf("222222\n");
     FILE *file = fopen("senaryo3.csv", "a");
     float persentage;
     char complaintId[20];
     char issue[200] = "";
     sprintf(complaintId, "%d", complaintIdi);
-
+    // printf("3333333333\n");
     for (int idx = 0; idx < limit; idx++)
     {
+        // printf("444444444\n");
         if (strcmp(records[idx].complaintId, complaintId) == 0)
         {
             strcpy(issue, records[idx].issue);
             break;
         }
     }
-
+    // printf("555555555555\n");
     if (strcmp(issue, "") != 0)
     {
-        printf("Issue: %s\n\n", issue);
+        // printf("66666666666\n");
+        // printf("Issue: %s\n\n", issue);
 
         for (int i = start; i < end; i++)
         {
@@ -443,8 +446,8 @@ void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int lim
             // printf("I(%d): %s , %s, %f, org: %f\n", j, records[i].product, records[j].product, persentage, originalPersentage);
             if (persentage > orgPersentage)
             {
-                printf("-1----%s, %s, %s, %s, %s, %s, %s\n", records[i].id, records[i].product, records[i].issue,
-                       records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+                // printf("-1----%s, %s, %s, %s, %s, %s, %s\n", records[i].id, records[i].product, records[i].issue,
+                //    records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
                 fprintf(file, "%s, %s, %s, %s, %s, %s, %s", records[i].id, records[i].product, records[i].issue,
                         records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
             }
