@@ -5,6 +5,7 @@
 #include <sys/time.h>
 #include <pthread.h>
 #include <time.h>
+#include <unistd.h>
 
 typedef struct DataSet
 {
@@ -29,14 +30,14 @@ float originalPersentage = 60;
 
 struct DataSet **similars;
 int numberOfArraysInSimilars = 0;
-int sizeOfEveryArrayInSimilars[100];
+int sizeOfEveryArrayInSimilars[20] = {0};
 
 void test(int start);
 void showSimilars();
 int checkSimilarity(struct DataSet data);
 float similarityPersentage(char *a, char *b);
 
-void sortProducts(struct DataSet *records, int limit)
+void sortProducts1(struct DataSet *records, int limit)
 {
     float persentage;
     int count;
@@ -72,6 +73,51 @@ void sortProducts(struct DataSet *records, int limit)
         }
     }
 }
+void sortProducts(struct DataSet *records, int limit)
+{
+    printf("Sorting...\n");
+    float persentage;
+    int count;
+    int similarityCheck;
+    char category[20][100] = {"Checking savings account",
+                              "Debt collection",
+                              "Credit reporting credit repair services personal consumer reports",
+                              "Mortgage",
+                              "Student loan",
+                              "Vehicle loan lease",
+                              "Credit card prepaid card",
+                              "Payday loan title loan personal loan",
+                              "Money transfer virtual currency money service",
+                              "Credit reporting",
+                              "Credit card",
+                              "Bank account service",
+                              "Consumer Loan",
+                              "Prepaid card",
+                              "Other financial service",
+                              "Payday loan",
+                              "Money transfers",
+                              "Virtual currency"};
+
+    // printf("----------%s\n", category[0]);
+
+    float persentages[20];
+    for (int i = 1; i < limit; i++)
+    {
+
+        for (int k = 0; k < 18; k++)
+        {
+            persentages[k] = similarityPersentage(records[i].product, category[k]);
+            // printf("KBefore(%d): %s , %s, %f, org: %f\n", k, records[i].product, category[k], persentages[k], originalPersentage);
+            if (persentages[k] > originalPersentage)
+            {
+                // printf("I(%d): %s , %s, %f, org: %f\n", i, records[i].product, category[k], persentages[k], originalPersentage);
+                int position = sizeOfEveryArrayInSimilars[k];
+                similars[k][position] = records[i];
+                sizeOfEveryArrayInSimilars[k]++;
+            }
+        }
+    }
+}
 
 void *getProducts(void *arguments)
 {
@@ -79,7 +125,7 @@ void *getProducts(void *arguments)
     struct Args *args = (struct Args *)arguments;
     int start = args->start;
     int end = args->end;
-
+    printf("start: %d, end: %d\n", start, end);
     int limit = end - start;
     struct DataSet *records;
     records = (struct DataSet *)malloc((limit + 5) * sizeof(struct DataSet));
@@ -95,7 +141,6 @@ void *getProducts(void *arguments)
     if (!file)
     {
         printf("Could not open the file\n");
-        return;
     }
     // getting to the start record
     while (count < start + 1)
@@ -128,8 +173,8 @@ void *getProducts(void *arguments)
         tmp = strtok(NULL, ",");
         strcpy(records[i].ZIP, tmp);
 
-        printf("ID: %s, %s, %s, %s, %s, %s, %s \n", records[i].id, records[i].product, records[i].issue,
-               records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+        // printf("ID: %s, %s, %s, %s, %s, %s, %s \n", records[i].id, records[i].product, records[i].issue,
+        //     records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
 
         rows++;
         if (rows > end)
@@ -143,6 +188,7 @@ void *getProducts(void *arguments)
     fclose(file);
     // sorting the records
     // printf("\n\noriginalPersentage: %f\n\n", originalPersentage);
+    printf("Done Reading start: %d\n", start);
     sortProducts(records, limit);
 }
 
@@ -189,7 +235,7 @@ void *threadedSort(int NUM_THREADS, float persentage)
 
     int start, end;
 
-    int num = 1167020 / NUM_THREADS;
+    int num = 1000 / NUM_THREADS;
 
     pthread_t threads[NUM_THREADS];
     struct Args *args = malloc(sizeof(struct Args) * NUM_THREADS);
@@ -209,13 +255,15 @@ void *threadedSort(int NUM_THREADS, float persentage)
 
 int main()
 {
-
-    threadedSort(1, 60);
-
+    clock_t time_start = clock();
+    threadedSort(60, 60);
+    clock_t time_end = clock();
+    double cpu_time_used = ((double)(time_end - time_start)) / CLOCKS_PER_SEC;
+    printf("Time: %f\n", cpu_time_used);
     // sortProducts(60, 6);
-    showSimilars();
-    printf("numberOfArraysInSimilars: %d\n", numberOfArraysInSimilars);
-    for (int i = 0; i < numberOfArraysInSimilars; i++)
+    // showSimilars();
+    // printf("numberOfArraysInSimilars: %d\n", numberOfArraysInSimilars);
+    for (int i = 0; i < 18; i++)
         printf("sizeOfEveryArrayInSimilars [%s] (%d): %d\n", similars[i]->product, i, sizeOfEveryArrayInSimilars[i]);
 
     // float per = 25.00000;
@@ -326,7 +374,7 @@ int checkSimilarity(struct DataSet data)
 void showSimilars()
 {
 
-    for (int i = 0; i < numberOfArraysInSimilars; i++)
+    for (int i = 0; i < 18; i++)
     {
         for (int j = 0; j < sizeOfEveryArrayInSimilars[i]; j++)
         {
