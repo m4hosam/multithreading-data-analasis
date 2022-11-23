@@ -23,6 +23,9 @@
       <height>811</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>190</number>
+    </attribute>
    </widget>
    <widget class="QTableWidget" name="result_table">
     <property name="geometry">
@@ -33,6 +36,9 @@
       <height>811</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>190</number>
+    </attribute>
    </widget>
    <widget class="QGroupBox" name="filtering_group">
     <property name="geometry">
@@ -64,12 +70,17 @@
       <rect>
        <x>30</x>
        <y>50</y>
-       <width>95</width>
+       <width>191</width>
        <height>20</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>aynı olanlar</string>
+      <string>Aynı olanlar (Senaryo 2)</string>
      </property>
     </widget>
     <widget class="QRadioButton" name="filteringKey_radio">
@@ -77,21 +88,26 @@
       <rect>
        <x>30</x>
        <y>80</y>
-       <width>95</width>
+       <width>211</width>
        <height>20</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string/>
+      <string>Complaint Id (Senaryo 3)</string>
      </property>
     </widget>
     <widget class="QTextEdit" name="filtering_textEdit">
      <property name="geometry">
       <rect>
-       <x>50</x>
-       <y>80</y>
-       <width>191</width>
-       <height>21</height>
+       <x>240</x>
+       <y>70</y>
+       <width>141</width>
+       <height>31</height>
       </rect>
      </property>
     </widget>
@@ -107,31 +123,6 @@
      <item>
       <property name="text">
        <string>Product</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Issue</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Company</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>State</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ID</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ZIP code</string>
       </property>
      </item>
     </widget>
@@ -157,6 +148,11 @@
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <item>
       <property name="text">
        <string>Product</string>
@@ -167,29 +163,14 @@
        <string>Issue</string>
       </property>
      </item>
-     <item>
-      <property name="text">
-       <string>Company</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>State</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>ZIP code</string>
-      </property>
-     </item>
     </widget>
     <widget class="QTextEdit" name="similarity_textEdit">
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>20</y>
-       <width>101</width>
-       <height>21</height>
+       <y>10</y>
+       <width>111</width>
+       <height>31</height>
       </rect>
      </property>
     </widget>
@@ -228,6 +209,11 @@
        <height>20</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Product</string>
      </property>
@@ -241,6 +227,11 @@
        <height>20</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Issue</string>
      </property>
@@ -250,9 +241,14 @@
       <rect>
        <x>40</x>
        <y>90</y>
-       <width>81</width>
+       <width>111</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>Company</string>
@@ -267,6 +263,11 @@
        <height>20</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>State</string>
      </property>
@@ -279,6 +280,11 @@
        <width>81</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>ID</string>
@@ -293,6 +299,11 @@
        <height>20</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>ZIP</string>
      </property>
@@ -305,6 +316,11 @@
        <width>81</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>All</string>
@@ -320,6 +336,11 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
     <property name="text">
      <string>thread sayısı</string>
     </property>
@@ -328,9 +349,9 @@
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>20</y>
-      <width>121</width>
-      <height>21</height>
+      <y>10</y>
+      <width>131</width>
+      <height>31</height>
      </rect>
     </property>
    </widget>
@@ -342,6 +363,11 @@
       <width>151</width>
       <height>61</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>13</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Ara</string>
@@ -356,6 +382,9 @@
       <height>261</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>170</number>
+    </attribute>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

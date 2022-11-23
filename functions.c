@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/file.h>
 
 typedef struct DataSet
 {
@@ -178,7 +179,7 @@ void saveSimilars()
         printf("Could not open the file\n");
         return;
     }
-
+    fprintf(file, "0,Product,Issue,Company,State,Complaint ID,ZIP code\n");
     for (int i = 0; i < numberOfArraysInSimilars; i++)
     {
         for (int j = 0; j < sizeOfEveryArrayInSimilars[i]; j++)
@@ -194,7 +195,7 @@ void saveSimilars()
     }
 }
 
-void sortProducts(struct DataSet *records, int limit)
+void sortProducts(int limit)
 {
     clock_t time_start = clock();
     float persentage;
@@ -237,6 +238,8 @@ void sortProducts(struct DataSet *records, int limit)
 
 void getProducts(int start, int end)
 {
+    records = (struct DataSet *)malloc((end + 5) * sizeof(struct DataSet));
+
     int limit = end - start;
 
     // rows = end-start
@@ -306,30 +309,27 @@ void getProducts(int start, int end)
     }
 
     fclose(file);
-    sortProducts(records, limit);
+    // sortProducts(limit);
 }
 
 void NoThreadSort(int limit, float persentage)
 {
     originalPersentage = persentage;
-
-    records = (struct DataSet *)malloc((limit + 5) * sizeof(struct DataSet));
-    // next block will be moved to thread function
+    // Allocating memory to similars
     similars = (DataSet **)malloc(20 * sizeof(DataSet *));
     for (int i = 0; i < 20; i++)
     {
         similars[i] = (DataSet *)malloc(sizeof(DataSet) * (limit * 8 / 10));
     }
 
-    int start, end;
-
-    getProducts(0, limit);
+    sortProducts(limit);
 }
 
 void startSenaryo2()
 {
     // clear the file of senaryo 2;
     FILE *file = fopen("senaryo2.csv", "w");
+    fprintf(file, "0,Product,Issue,Company,State,Complaint ID,ZIP code\n");
     fclose(file);
 }
 
@@ -371,8 +371,8 @@ void senaryo2(int start, int end, float orgPersentage)
                 // comparing each item in similars array to the next till the end
                 count = 0;
                 // store the first element you see
-                printf("-%d----%s, %s, %s, %s, %s, %s, %s\n", ctr, similars[i][j].id, similars[i][j].product, similars[i][j].issue,
-                       similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
+                // printf("-%d----%s, %s, %s, %s, %s, %s, %s\n", ctr, similars[i][j].id, similars[i][j].product, similars[i][j].issue,
+                //        similars[i][j].company, similars[i][j].state, similars[i][j].complaintId, similars[i][j].ZIP);
 
                 // printf("limit: %d\n", limit);
                 strcpy(lastSimilars[ctr], similars[i][j].issue);
@@ -389,8 +389,8 @@ void senaryo2(int start, int end, float orgPersentage)
                     // if element found store it
                     if (persentage > orgPersentage)
                     {
-                        printf("-----%s, %s, %s, %s, %s, %s, %s\n", similars[i][k].id, similars[i][k].product, similars[i][k].issue,
-                               similars[i][k].company, similars[i][k].state, similars[i][k].complaintId, similars[i][k].ZIP);
+                        // printf("-----%s, %s, %s, %s, %s, %s, %s\n", similars[i][k].id, similars[i][k].product, similars[i][k].issue,
+                        //        similars[i][k].company, similars[i][k].state, similars[i][k].complaintId, similars[i][k].ZIP);
                         fprintf(file, "%s, %s, %s, %s, %s, %s, %s", similars[i][k].id, similars[i][k].product, similars[i][k].issue,
                                 similars[i][k].company, similars[i][k].state, similars[i][k].complaintId, similars[i][k].ZIP);
                         count++;
@@ -407,6 +407,7 @@ void senaryo2(int start, int end, float orgPersentage)
 void startSenaryo3()
 {
     FILE *file = fopen("senaryo3.csv", "w");
+    fprintf(file, "0,Product,Issue,Company,State,Complaint ID,ZIP code\n");
     fclose(file);
 }
 
@@ -448,6 +449,7 @@ void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int lim
             {
                 // printf("-1----%s, %s, %s, %s, %s, %s, %s\n", records[i].id, records[i].product, records[i].issue,
                 //        records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
+
                 fprintf(file, "%s, %s, %s, %s, %s, %s, %s", records[i].id, records[i].product, records[i].issue,
                         records[i].company, records[i].state, records[i].complaintId, records[i].ZIP);
             }
@@ -464,10 +466,19 @@ void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int lim
 void startSenaryo4(int threadsNo)
 {
     char tmp[30];
+    for (int i = 1;; i++)
+    {
+        sprintf(tmp, "senaryo4_%d.csv", i);
+        if (remove(tmp) != 0)
+        {
+            break;
+        }
+    }
     for (int i = 1; i < threadsNo + 1; i++)
     {
         sprintf(tmp, "senaryo4_%d.csv", i);
         FILE *file = fopen(tmp, "w");
+        fprintf(file, "0,Product,Issue,Company,State,Complaint ID,ZIP code\n");
         fclose(file);
     }
 }
@@ -530,4 +541,13 @@ void senaryo4(int start, int end, float orgPersentage, int threadNo)
 int getNumberOfArraysInSimilars()
 {
     return numberOfArraysInSimilars;
+}
+
+void freeRecords()
+{
+    free(records);
+}
+void freeSimilars()
+{
+    free(records);
 }

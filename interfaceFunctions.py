@@ -5,8 +5,11 @@ import pandas as pd
 from interfaceUI import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
-import app
+from app import *
 import time
+
+
+limit = 100000
 
 
 def init_data():
@@ -114,7 +117,7 @@ class MainWindow:
             if counter == 100:
                 break
 
-        for row in range(0, 100):
+        for row in range(0, 10):
             for column in range(0, columnNum-1):
                 self.ui.result_table.setItem(
                     row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
@@ -230,10 +233,16 @@ class MainWindow:
             0, 1, QtWidgets.QTableWidgetItem(str(time)))
 
     def runCfunctions(self):
-
-        if self.filteringRadioVal == 0:
-            print("111")
+        # senaryo 1
+        # 70% similarity in products
+        if self.filteringRadioVal == 0 and self.similarityColumn == "Product":
+            print("Senaryo1")
             start = time.time()
+            # sorting the records
+            # sort_products(limit, float(self.similarityPercentage))
+            # print("11111111111")
+            # save_similars()
+            # print("22222222222")
             self.results = pd.read_csv("sorted.csv", encoding="ISO-8859-1")
             self.init_resultsTable(self.results)
             end = time.time()
@@ -241,15 +250,39 @@ class MainWindow:
             # run function
 
         elif self.filteringRadioVal == "same":
-            app.multi_senaryo2(self.threadNum, self.similarityPercentage)
-
-            results = pd.read_csv("result.csv", encoding="ISO-8859-1")
+            print("senaryo2")
+            start = time.time()
+            start_senaryo2()
+            multi_senaryo2(int(self.threadNum),
+                           float(self.similarityPercentage))
+            self.results = pd.read_csv("senaryo2.csv", encoding="ISO-8859-1")
+            self.init_resultsTable(self.results)
+            end = time.time()
+            self.init_threadTable(end-start)
+            # results = pd.read_csv("result.csv", encoding="ISO-8859-1")
             # run senaryo 2
 
-        else:
-            app.multi_senaryo3(
-                self.threadNum, self.filteringRadioVal, self.similarityPercentage)
-            results = pd.read_csv("result.csv", encoding="ISO-8859-1")
+        elif self.filteringRadioVal != "same" and self.filteringRadioVal != 0:
+            print("senaryo3")
+            start = time.time()
+            start_senaryo3()
+            multi_senaryo3(
+                int(self.threadNum),  float(self.similarityPercentage), int(self.filteringRadioVal), int(limit))
+            self.results = pd.read_csv("senaryo3.csv", encoding="ISO-8859-1")
+            self.init_resultsTable(self.results)
+            end = time.time()
+            self.init_threadTable(end-start)
+
+        elif self.filteringRadioVal == 0 and self.similarityColumn == "Issue":
+            print("senaryo4")
+            start = time.time()
+            start_senaryo4(int(self.threadNum))
+            multi_senaryo4(
+                int(self.threadNum),  float(self.similarityPercentage), int(limit))
+            self.results = pd.read_csv("senaryo4_1.csv", encoding="ISO-8859-1")
+            self.init_resultsTable(self.results)
+            end = time.time()
+            self.init_threadTable(end-start)
 
         # run senaryo 3 with self.filterBy self.filteringRadioVal self.filterby
 
@@ -257,65 +290,10 @@ class MainWindow:
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main_win = MainWindow()
+    free_records()
+    free_similars()
+    get_products(0, limit)
     main_win.show()
+    sort_products(limit, 70)
+    save_similars()
     sys.exit(app.exec_())
-
-
-# data.to_csv("newdata.csv")
-
-
-# print(zips)
-
-# for i in range(10):
-#     cursor.execute(f'''
-#      INSERT INTO complaints
-#      VALUES({date[i]}, {products[i]},{issues[i]},{companies[i]},{states[i]},{complaint_ids[i]},{zips[i]})
-#     ''')
-# cursor.commit()
-
-# with open('rows.csv', newline = '') as csvfile:
-#     spamreader = csv.reader(csvfile, delimiter=',')
-#     for row in spamreader:
-#         print(','.join(row))
-
-
-# start = time.perf_counter()
-
-# def do_something(seconds):
-#     print(f'sleeping {seconds} sec(s)')
-#     time.sleep(seconds)
-#     return f'Done sleeping...{seconds}'
-
-# with concurrent.futures.ThreadPoolExecutor() as executor:
-#     secs = [5,4,3,2,1]
-#     results = executor.map(do_something, secs)
-
-#     for result in results:
-#         print(result)
-    # results = [executor.submit(do_something, sec) for sec in secs]
-
-    # for f in concurrent.futures.as_completed(results):
-    #     print(f.result())
-
-
-# threads = []
-
-# for _ in range(10):
-#     t = threading.Thread(target = do_something, args = [1.5])
-#     t.start()
-#     threads.append(t)
-
-# for thread in threads:
-#     thread.join()
-# t1 = threading.Thread(target = do_something)
-# t2 = threading.Thread(target = do_something)
-
-# t1.start()
-# t2.start()
-
-# t1.join()
-# t2.join()
-
-# finish = time.perf_counter()
-
-# print(f'\nfinsished in {round(finish - start, 2)}\n')

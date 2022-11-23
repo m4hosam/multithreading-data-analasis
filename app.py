@@ -7,6 +7,7 @@ import threading
 import os
 import timeit
 import functools
+import pandas as pd
 
 
 # def find_cudart(root_path: str = os.path.abspath(os.sep),
@@ -19,7 +20,7 @@ import functools
 
 # Find the library and load it
 mylib_path = ctypes.util.find_library(
-    "C:\\Users\\moham\\Desktop\\Yazlab\\functions.so")
+    "F:\\Computer-Engineering\\Third Year\\YazLab\\Final\\functions.so")
 if not mylib_path:
     print("Unable to find the specified library.1")
     sys.exit()
@@ -28,6 +29,10 @@ if not mylib_path:
 mylib = ctypes.CDLL(mylib_path)
 
 print("Well")
+
+get_products = mylib.getProducts
+get_products.argtypes = [ctypes.c_int, ctypes.c_int]
+get_products.restype = None
 
 
 sort_products = mylib.NoThreadSort
@@ -53,6 +58,7 @@ senaryo2.restype = None
 start_senaryo3 = mylib.startSenaryo3
 start_senaryo3.restype = None
 
+
 # senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit)
 senaryo3 = mylib.senaryo3
 senaryo3.argtypes = [ctypes.c_int, ctypes.c_int,
@@ -72,10 +78,13 @@ senaryo4.argtypes = [ctypes.c_int, ctypes.c_int,
 senaryo4.restype = None
 
 
-sort_products(1000, 60)
+free_records = mylib.freeRecords
+free_records.restype = None
 
-# Save Similars to sorted.csv
-save_similars()
+free_similars = mylib.freeSimilars
+free_similars.restype = None
+
+limit = 10000
 
 
 # print(similars_no())
@@ -98,11 +107,12 @@ save_similars()
 # limit is the same value for sort_products function
 # senaryo3(0, 100, 3237160, 50, 1000)
 
-
+# sort Issus based on similar products
 def multi_senaryo2(thread_num, persentage):
     # creating threads
     threads = []
     arrays = similars_no()
+    print("threadNo: ", thread_num, "persentage: ", persentage)
     num = arrays // thread_num
     remainder = arrays % thread_num
 
@@ -124,17 +134,19 @@ def multi_senaryo2(thread_num, persentage):
         threads[i].join()
 
 
-def multi_senaryo3(thread_num, persentage, complaintId, limit):
+def multi_senaryo3(thread_num, persentage, complaint_id, limit):
     # creating threads
     threads = []
+
     num = limit//thread_num
 
     for i in range(0, thread_num):
+
         start = i*num+1
         end = (i+1)*num
         # print("start: ", start, "End: ", end)
         t = threading.Thread(target=senaryo3, args=(
-            start, end, complaintId, persentage, limit,))
+            start, end, complaint_id, persentage, limit,))
         threads.append(t)
 
     for i in range(0, thread_num):
@@ -143,20 +155,24 @@ def multi_senaryo3(thread_num, persentage, complaintId, limit):
     for i in range(0, thread_num):
         threads[i].join()
 
+
 # senaryo4(int start, int end, float orgPersentage, int threadNo)
 
 
 def multi_senaryo4(thread_num, persentage, limit):
     # creating threads
     threads = []
+    # filenames = []
     num = limit//thread_num
 
     for i in range(0, thread_num):
+        # file_name = "senaryo4_"+str(i+1)+".csv"
+        # filenames.append(file_name)
         start = i*num+1
         end = (i+1)*num
         # print("start: ", start, "End: ", end)
         t = threading.Thread(target=senaryo4, args=(
-            start, end, persentage, i,))
+            start, end, persentage, i+1,))
         threads.append(t)
 
     for i in range(0, thread_num):
@@ -168,11 +184,21 @@ def multi_senaryo4(thread_num, persentage, limit):
 
 if __name__ == "__main__":
     '''It is very important to use name == __main__ guard code with threads and multiprocessing'''
+    free_records()
+    free_similars()
+
+    get_products(0, limit)
+
+    sort_products(limit, 60)
+
+    # Save Similars to sorted.csv
+    save_similars()
+
     #  arguments (limit,persentage)
 
-    # start = time.time()
-    # multi_senaryo2(1, 70)
-    # end = time.time()
+    start = time.time()
+    multi_senaryo2(1, 70)
+    end = time.time()
 
     # print("Multithreading(1):  ", end-start)
     # start = time.time()
@@ -193,22 +219,22 @@ if __name__ == "__main__":
     # print("senaryo 3 ")
 
     # start = time.time()
-    # multi_senaryo3(1, 70, 3236983, 10000)
+    # multi_senaryo3(1, 70, 3236983, limit)
     # end = time.time()
 
     # print("Multithreading(1):  ", end-start)
     # start = time.time()
-    # multi_senaryo3(3, 70, 3236983, 10000)
+    # multi_senaryo3(3, 70, 3236983, limit)
     # end = time.time()
 
     # print("Multithreading(3):  ", end-start)
     # start = time.time()
-    # multi_senaryo3(5, 70, 3236983, 10000)
+    # multi_senaryo3(5, 70, 3236983, limit)
     # end = time.time()
 
     # print("Multithreading(5):  ", end-start)
     # start = time.time()
-    # multi_senaryo3(8, 70, 3236983, 10000)
+    # multi_senaryo3(8, 70, 3236983, limit)
     # end = time.time()
 
     # print("Multithreading(8):  ", end-start)
@@ -216,25 +242,26 @@ if __name__ == "__main__":
     print("senaryo 4 ")
     # multi_senaryo4(thread_num, persentage, limit):
     start = time.time()
-    multi_senaryo4(1, 70,  1000)
+    start_senaryo4(1)
+    multi_senaryo4(1, 70,  limit)
     end = time.time()
 
     print("Multithreading(1):  ", end-start)
-    start = time.time()
-    multi_senaryo4(3, 70,  1000)
-    end = time.time()
+    # start = time.time()
+    # start_senaryo4(3)
+    # multi_senaryo4(3, 70,  limit)
+    # end = time.time()
 
-    print("Multithreading(3):  ", end-start)
-    start = time.time()
-    multi_senaryo4(5, 70,  1000)
-    end = time.time()
+    # print("Multithreading(3):  ", end-start)
+    # start = time.time()
+    # start_senaryo4(5)
+    # multi_senaryo4(5, 70,  limit)
+    # end = time.time()
 
-    print("Multithreading(5):  ", end-start)
-    start = time.time()
-    multi_senaryo4(8, 70,  1000)
-    end = time.time()
+    # print("Multithreading(5):  ", end-start)
+    # start = time.time()
+    # start_senaryo4(8)
+    # multi_senaryo4(8, 70,  limit)
+    # end = time.time()
 
-    print("Multithreading(8):  ", end-start)
-
-    # num = 9 % 2
-    # print("num: ", num)
+    # print("Multithreading(8):  ", end-start)
