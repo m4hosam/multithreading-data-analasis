@@ -325,19 +325,33 @@ void NoThreadSort(int limit, float persentage)
     sortProducts(limit);
 }
 
-void startSenaryo2()
+void startSenaryo2(int threadsNo)
 {
-    // clear the file of senaryo 2;
-    FILE *file = fopen("senaryo2.csv", "w");
-    fprintf(file, "0,Product,Issue,Company,State,Complaint ID,ZIP code\n");
-    fclose(file);
+    char tmp[30];
+    for (int i = 1;; i++)
+    {
+        sprintf(tmp, "senaryo2_%d.csv", i);
+        if (remove(tmp) != 0)
+        {
+            break;
+        }
+    }
+    for (int i = 1; i < threadsNo + 1; i++)
+    {
+        sprintf(tmp, "senaryo2_%d.csv", i);
+        FILE *file = fopen(tmp, "w");
+        fprintf(file, "0,Product,Issue,Company,State,Complaint ID,ZIP code\n");
+        fclose(file);
+    }
 }
 
-void senaryo2(int start, int end, float orgPersentage)
+void senaryo2(int start, int end, float orgPersentage, int threadNo)
 {
     int ctr = 0;
     char lastSimilars[5000][200];
-    FILE *file = fopen("senaryo2.csv", "a");
+    char fileName[20];
+    sprintf(fileName, "senaryo2_%d.csv", threadNo);
+    FILE *file = fopen(fileName, "a");
 
     // read arrays of similars
     // arrays will be divided on threads
@@ -404,14 +418,28 @@ void senaryo2(int start, int end, float orgPersentage)
     // Save them to senaryo2.csv
     fclose(file);
 }
-void startSenaryo3()
+
+void startSenaryo3(int threadsNo)
 {
-    FILE *file = fopen("senaryo3.csv", "w");
-    fprintf(file, "0,Product,Issue,Company,State,Complaint ID,ZIP code\n");
-    fclose(file);
+    char tmp[30];
+    for (int i = 1;; i++)
+    {
+        sprintf(tmp, "senaryo3_%d.csv", i);
+        if (remove(tmp) != 0)
+        {
+            break;
+        }
+    }
+    for (int i = 1; i < threadsNo + 1; i++)
+    {
+        sprintf(tmp, "senaryo3_%d.csv", i);
+        FILE *file = fopen(tmp, "w");
+        fprintf(file, "0,Product,Issue,Company,State,Complaint ID,ZIP code\n");
+        fclose(file);
+    }
 }
 
-void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit)
+void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit, int threadNo)
 {
     // printf("1111111111\n");
     int ctr = 0;
@@ -419,7 +447,9 @@ void senaryo3(int start, int end, int complaintIdi, float orgPersentage, int lim
     int similarityCheck;
     char lastSimilars[5000][200] = {""};
     // printf("222222\n");
-    FILE *file = fopen("senaryo3.csv", "a");
+    char fileName[20];
+    sprintf(fileName, "senaryo3_%d.csv", threadNo);
+    FILE *file = fopen(fileName, "a");
     float persentage;
     char complaintId[20];
     char issue[200] = "";

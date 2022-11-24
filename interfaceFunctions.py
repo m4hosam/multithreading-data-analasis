@@ -114,10 +114,13 @@ class MainWindow:
             # print(list)
             counter += 1
             tableRows.append(list)
-            if counter == 100:
+            if counter == 500:
                 break
 
-        for row in range(0, 10):
+        count_limit = 500
+        if counter < 500:
+            count_limit = counter
+        for row in range(0, count_limit):
             for column in range(0, columnNum-1):
                 self.ui.result_table.setItem(
                     row, column, QtWidgets.QTableWidgetItem(str(tableRows[row][column])))
@@ -252,10 +255,10 @@ class MainWindow:
         elif self.filteringRadioVal == "same":
             print("senaryo2")
             start = time.time()
-            start_senaryo2()
+            start_senaryo2(int(self.threadNum))
             multi_senaryo2(int(self.threadNum),
                            float(self.similarityPercentage))
-            self.results = pd.read_csv("senaryo2.csv", encoding="ISO-8859-1")
+            self.results = pd.read_csv("senaryo2_1.csv", encoding="ISO-8859-1")
             self.init_resultsTable(self.results)
             end = time.time()
             self.init_threadTable(end-start)
@@ -265,10 +268,10 @@ class MainWindow:
         elif self.filteringRadioVal != "same" and self.filteringRadioVal != 0:
             print("senaryo3")
             start = time.time()
-            start_senaryo3()
+            start_senaryo3(int(self.threadNum))
             multi_senaryo3(
                 int(self.threadNum),  float(self.similarityPercentage), int(self.filteringRadioVal), int(limit))
-            self.results = pd.read_csv("senaryo3.csv", encoding="ISO-8859-1")
+            self.results = pd.read_csv("senaryo3_1.csv", encoding="ISO-8859-1")
             self.init_resultsTable(self.results)
             end = time.time()
             self.init_threadTable(end-start)

@@ -47,22 +47,24 @@ similars_no = mylib.getNumberOfArraysInSimilars
 similars_no.restype = ctypes.c_int
 
 start_senaryo2 = mylib.startSenaryo2
+start_senaryo2.argtypes = [ctypes.c_int]
 start_senaryo2.restype = None
 
 
-# senaryo2(int start, int end, float orgPersentage)
+# senaryo2(int start, int end, float orgPersentage, int threadNo)
 senaryo2 = mylib.senaryo2
-senaryo2.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_float]
+senaryo2.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_float, ctypes.c_int]
 senaryo2.restype = None
 
 start_senaryo3 = mylib.startSenaryo3
+start_senaryo3.argtypes = [ctypes.c_int]
 start_senaryo3.restype = None
 
 
-# senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit)
+# senaryo3(int start, int end, int complaintIdi, float orgPersentage, int limit, int threadNo)
 senaryo3 = mylib.senaryo3
-senaryo3.argtypes = [ctypes.c_int, ctypes.c_int,
-                     ctypes.c_int, ctypes.c_float, ctypes.c_int]
+senaryo3.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                     ctypes.c_float, ctypes.c_int, ctypes.c_int]
 senaryo3.restype = None
 
 
@@ -112,7 +114,7 @@ def multi_senaryo2(thread_num, persentage):
     # creating threads
     threads = []
     arrays = similars_no()
-    print("threadNo: ", thread_num, "persentage: ", persentage)
+    # print("threadNo: ", thread_num, "persentage: ", persentage)
     num = arrays // thread_num
     remainder = arrays % thread_num
 
@@ -124,7 +126,8 @@ def multi_senaryo2(thread_num, persentage):
             end = end + remainder
 
         # print("start: ", start, "end: ", end)
-        t = threading.Thread(target=senaryo2, args=(start, end, persentage,))
+        t = threading.Thread(target=senaryo2, args=(
+            start, end, persentage, i+1))
         threads.append(t)
 
     for i in range(0, thread_num):
@@ -146,7 +149,7 @@ def multi_senaryo3(thread_num, persentage, complaint_id, limit):
         end = (i+1)*num
         # print("start: ", start, "End: ", end)
         t = threading.Thread(target=senaryo3, args=(
-            start, end, complaint_id, persentage, limit,))
+            start, end, complaint_id, persentage, limit, i+1))
         threads.append(t)
 
     for i in range(0, thread_num):
